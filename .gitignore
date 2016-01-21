@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+fed
+forecast.panel.rds
+forecast_panel_frontpage.rds
+temp/**
