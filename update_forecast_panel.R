@@ -24,48 +24,50 @@ SPFUSMutateTargetYear <- function(issued.year, issued.quarter, quarters.ahead) {
   }
 }
 
-
-# for (i in c(1:5)) {
-#   download.file(paste0("https://www.philadelphiafed.org/-/media/research-and-data/real-time-center/survey-of-professional-forecasters/historical-data/micro",i,".xls"),
-#                 method = "curl",
-#                 extra = "--insecure",
-#                 destfile = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"))
-# }
+for (i in c(1:5)) {
+  download.file(paste0("https://www.philadelphiafed.org/-/media/research-and-data/real-time-center/survey-of-professional-forecasters/historical-data/micro",i,".xls"),
+                method = "curl",
+                extra = "--insecure",
+                destfile = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"))
+}
 
 x <- foreach(i = 1:5) %do% {
   
-  SPFdataUS <- read_excel(path = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"), sheet = "RGDP", col_types = rep("numeric", times = 12), col_names = TRUE) %>%
+  SPFdataUS <- read_excel(path = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"), 
+                          sheet = "RGDP", 
+                          col_types = rep("numeric", times = 14), 
+                          col_names = TRUE) %>%
     rename(panel.id = ID, issued.year = YEAR, issued.quarter = QUARTER)
   
   tidy.SPFdataUS.fixed.event.forecasts <- SPFdataUS %>%
-    select(issued.year, issued.quarter, panel.id, NGDPA, NGDPB) %>%
-    gather(key = years.ahead, value = point.forecast, NGDPA, NGDPB, convert = TRUE) %>%
-    mutate(years.ahead = replace(years.ahead, years.ahead == "NGDPA", 0)) %>%
-    mutate(years.ahead = replace(years.ahead, years.ahead == "NGDPB", 1))
+    select(issued.year, issued.quarter, panel.id, RGDPA, RGDPB) %>%
+    gather(key = years.ahead, value = point.forecast, RGDPA, RGDPB, convert = TRUE) %>%
+    mutate(years.ahead = replace(years.ahead, years.ahead == "RGDPA", 0)) %>%
+    mutate(years.ahead = replace(years.ahead, years.ahead == "RGDPB", 1))
   
   tidy.SPFdataUS.fixed.event.forecasts <- tidy.SPFdataUS.fixed.event.forecasts %>%
     mutate(years.ahead = as.numeric(tidy.SPFdataUS.fixed.event.forecasts$years.ahead)) %>%
     cbind(data_frame(fixed.event.or.horizon = "event",
-                     variable = "NGDP",
+                     variable = "RGDP",
                      panel = "SPF-US",
                      region = "US"),
           row.names = NULL) %>%
     mutate(target.year = issued.year + years.ahead)
   
   tidy.SPFdataUS.fixed.horizon.forecasts <- SPFdataUS %>%
-    select(issued.year, issued.quarter, panel.id, NGDP1, NGDP2, NGDP3, NGDP4, NGDP5, NGDP6) %>%
-    gather(key = quarters.ahead, value = point.forecast, NGDP1, NGDP2, NGDP3, NGDP4, NGDP5, NGDP6, convert = TRUE) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP1", -1)) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP2", 0)) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP3", 1)) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP4", 2)) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP5", 3)) %>%
-    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "NGDP6", 4))
+    select(issued.year, issued.quarter, panel.id, RGDP1, RGDP2, RGDP3, RGDP4, RGDP5, RGDP6) %>%
+    gather(key = quarters.ahead, value = point.forecast, RGDP1, RGDP2, RGDP3, RGDP4, RGDP5, RGDP6, convert = TRUE) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP1", -1)) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP2", 0)) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP3", 1)) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP4", 2)) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP5", 3)) %>%
+    mutate(quarters.ahead = replace(quarters.ahead, quarters.ahead == "RGDP6", 4))
   
   tidy.SPFdataUS.fixed.horizon.forecasts <- tidy.SPFdataUS.fixed.horizon.forecasts %>%
     mutate(quarters.ahead = as.numeric(tidy.SPFdataUS.fixed.horizon.forecasts$quarters.ahead)) %>%
     cbind(data_frame(fixed.event.or.horizon = "horizon",
-                     variable = "NGDP",
+                     variable = "RGDP",
                      panel = "SPF-US",
                      region = "US"),
           row.names = NULL) %>%
