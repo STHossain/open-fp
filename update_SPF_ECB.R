@@ -66,7 +66,7 @@ SPFECBMutateQuartersAhead <- function(issued.year, issued.quarter, target.year, 
   }
 }
 
-download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts_up_to_2015Q4.zip",
+download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
               destfile = "/home/onno/open-fp/Submissions/SPF.zip")
 
 unzip(zipfile = "/home/onno/open-fp/Submissions/SPF.zip",
