@@ -96,8 +96,8 @@ all.joined.reduced <- all.joined %>% select( panel, panel.id, variable, region, 
 forecast.panel.frontpage <- all.joined.reduced %>%
   select(issued.year, issued.quarter, fixed.event.or.horizon, target.year, point.forecast, region, variable) %>%
   filter(fixed.event.or.horizon == "event") %>%
-  filter(issued.year == 2015) %>%
-  filter(issued.quarter == 4) %>%
+  filter(issued.year == 2016) %>%
+  filter(issued.quarter == 1) %>%
   filter(target.year == 2015 | target.year == 2016 | target.year == 2017 | target.year == 2020) %>%
   filter(is.na(point.forecast) == FALSE)
 

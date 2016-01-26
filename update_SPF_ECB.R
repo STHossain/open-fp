@@ -161,6 +161,7 @@ for(year in c(1999:2018)) {
     
   }
 }
+
 rm(data.variable, dataSPF, clean.csv, quarter, year, temp.path,i, empty.rows)
 
 files <- list.files(file.path("/home/onno/open-fp/temp/"), full.names = TRUE)
