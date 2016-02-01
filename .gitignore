@@ -7,5 +7,6 @@ forecast.panel.rds
 forecast_panel_frontpage.rds
 temp/**
 Submissions/**
+ShinyApps/log/**
 open-fp/data/forecast.panel.csv
 open-fp/data/forecast.panel.dta
