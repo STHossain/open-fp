@@ -66,6 +66,82 @@ SPFECBMutateQuartersAhead <- function(issued.year, issued.quarter, target.year, 
   }
 }
 
+SPFECBRenameBins <- function(panel) {
+  #panel <- clean.csv
+  #panel <- forecast.panel.SPF.ECB
+  #panel <- panel %>% rename(FN0_5TN0_1 = T0_0)
+  #panel <- panel %>% rename(F4_0 = F4_0T4_4)
+  #panel <- panel %>% rename(F5_0 = F5_0T5_4)
+  #panel <- panel %>% rename(F6_0 = F6_0T6_4)
+  
+  #panel <- clean.csv
+  
+  # fix bins strictly positive number to infinity 
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = F",i,"_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_9 = F",i,"_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  
+  # fix bins negative infinity to strictly positive number
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i-1,"_5T", i-1, "_9 = T",i,"_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = T",i,"_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  # foreach loop just for error handling
+  foreach( i = 1, .errorhandling='remove') %do% {
+    # fix negative infinity to 0 and 0 to positive infinity
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5T0_0 = T0_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1, .errorhandling = 'remove') %do% {
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_5T0_5 = F0_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  
+  
+  # fix bins negative infinity to strictly negative number
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    # (-inf,-4) -> (-4.5 , -4.1)
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i,"_5TN", i, "_1 = TN",i,"_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    # (-inf,-4.5) -> (-5.0 , -4.6)
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i+1,"_0TN", i, "_6 = TN",i,"_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  # fix bins strictly negative number to infinity 
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    # (-4,inf) -> (-4,-3.6)
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i,"_0Tn", i-1, "_4 = FN",i,"_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1:20, .errorhandling='remove') %do% {
+    # (-4.5,inf) -> (-4.5,-4.1)
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_1 = FN",i,"_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  return(panel)
+}
+
+#x <- SPFECBRenameBins(panel = clean.csv)
+
 download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
               destfile = "/home/onno/open-fp/Submissions/SPF.zip")
 
@@ -108,9 +184,10 @@ for(year in c(1999:2018)) {
                                data_frame(region = "Euro", 
                                           issued.year = year, 
                                           issued.quarter = quarter,
-                                          panel = "SPF-ECB"),
+                                          panel = "SPF-ECB",
+                                          issued.period = paste0(year,"Q",quarter)),
                                row.names = NULL)
-            
+            clean.csv <- SPFECBRenameBins(panel = clean.csv)
             
             write_csv(clean.csv, path = temp.path, col_names = TRUE, append = FALSE)
           } 
@@ -128,9 +205,10 @@ for(year in c(1999:2018)) {
                                data_frame(region = "Euro", 
                                           issued.year = year, 
                                           issued.quarter = quarter,
-                                          panel = "SPF-ECB"),
+                                          panel = "SPF-ECB",
+                                          issued.period = paste0(year,"Q",quarter)),
                                row.names = NULL)
-            
+            clean.csv <- SPFECBRenameBins(panel = clean.csv)
             
             write_csv(clean.csv, path = temp.path, col_names = TRUE, append = FALSE)
           }
@@ -148,10 +226,11 @@ for(year in c(1999:2018)) {
                                data_frame(region = "Euro", 
                                           issued.year = year, 
                                           issued.quarter = quarter,
-                                          panel = "SPF-ECB"),
+                                          panel = "SPF-ECB",
+                                          issued.period = paste0(year,"Q",quarter)),
                                row.names = NULL)
             
-            
+            clean.csv <- SPFECBRenameBins(panel = clean.csv)
             
             write_csv(clean.csv, path = temp.path, col_names = TRUE, append = FALSE)
           }
@@ -189,7 +268,7 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
                                  forecast.panel.SPF.ECB$issued.quarter, 
                                  forecast.panel.SPF.ECB$target.year,
                                  forecast.panel.SPF.ECB$target.quarter))
-
+  
 forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
   mutate(target.period = ifelse(
     is.na(forecast.panel.SPF.ECB$target.year),
@@ -199,7 +278,17 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
            paste0(forecast.panel.SPF.ECB$target.year,
                   "Q",
                   forecast.panel.SPF.ECB$target.quarter)))) %>%
-  select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,
-         issued.year, issued.quarter, target.period, quarters.ahead, target.year, target.quarter)
+  select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
+         issued.year, issued.quarter, target.period, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter) 
+
+forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
+  mutate(quarters.ahead.ECB = ifelse(
+    quarters.ahead <= 4,
+    4,
+    ifelse( quarters.ahead <= 8,
+           8,
+           NA)
+  )
+  )
 
 write_csv(forecast.panel.SPF.ECB, path = "/home/onno/open-fp/Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)

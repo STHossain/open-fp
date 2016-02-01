@@ -14,8 +14,8 @@ shinyServer(function(input, output) {
     gg.data <- forecast.panel %>%
       filter(region == input$region) %>%
       filter(variable == input$variable) %>%
-      filter(issued.year == 2015) %>%
-      filter(target.year == 2015 | target.year == 2016 | target.year == 2017) %>%
+      filter(issued.year == 2016) %>%
+      filter(target.year == 2016 | target.year == 2017) %>%
       filter(is.na(point.forecast) == FALSE) %>%
       select(target.year, point.forecast) %>%
       group_by(target.year)
