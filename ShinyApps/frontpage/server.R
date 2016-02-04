@@ -11,14 +11,31 @@ shinyServer(function(input, output) {
 
   output$forecastPlot <- renderPlotly({
     
-    gg.data <- forecast.panel %>%
-      filter(region == input$region) %>%
-      filter(variable == input$variable) %>%
-      filter(issued.year == 2016) %>%
-      filter(target.year == 2016 | target.year == 2017) %>%
-      filter(is.na(point.forecast) == FALSE) %>%
-      select(target.year, point.forecast) %>%
-      group_by(target.year)
+    if (input$region == "Euro") {
+      gg.data <- forecast.panel %>%
+        filter(region == input$region) %>%
+        filter(variable == input$variable) %>%
+        filter(issued.year == 2016) %>%
+        filter(issued.quarter == 1) %>%
+        filter(target.year == 2016 | target.year == 2017) %>%
+        filter(is.na(point.forecast) == FALSE) %>%
+        select(target.year, point.forecast) %>%
+        group_by(target.year)
+    }
+    
+    if (input$region == "US") {
+      gg.data <- forecast.panel %>%
+        filter(region == input$region) %>%
+        filter(variable == input$variable) %>%
+        filter(issued.year == 2015) %>%
+        filter(issued.quarter == 4) %>%
+        filter(target.year == 2016 | target.year == 2017) %>%
+        filter(is.na(point.forecast) == FALSE) %>%
+        select(target.year, point.forecast) %>%
+        group_by(target.year)
+    }
+    
+    
     
     gg <- ggplot(gg.data) + 
       geom_boxplot(aes(x = target.year, y = point.forecast, group = target.year)) +

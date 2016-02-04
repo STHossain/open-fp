@@ -37,7 +37,7 @@ shinyUI(fluidPage(
     selectInput("region", 
                 label = "Choose a region to display",
                 #choices = list("Euro", "US"),
-                choices = list("Euro"),
+                choices = list("Euro","US"),
                 selected = "Euro")
   ),
   
