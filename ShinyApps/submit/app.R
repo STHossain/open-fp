@@ -30,9 +30,14 @@ shinyApp(
                   ),
       selectInput("Year",
                   labelMandatory("Target year"),
-                  choices = c(2015:2017),
-                  selected = 2015
+                  choices = c(2016:2018),
+                  selected = 2016
                   ),
+      selectInput("Quarter",
+                  labelMandatory("Target quarter"),
+                  choices = c(2016:2018),
+                  selected = 2016
+      ),
       #selectInput("")
       #checkboxInput("used_shiny", "I've built a Shiny app in R before", FALSE),
       #sliderInput("r_num_years", "Number of years using R", 0, 25, 2, ticks = FALSE),

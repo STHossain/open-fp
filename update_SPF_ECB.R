@@ -67,14 +67,6 @@ SPFECBMutateQuartersAhead <- function(issued.year, issued.quarter, target.year, 
 }
 
 SPFECBRenameBins <- function(panel) {
-  #panel <- clean.csv
-  #panel <- forecast.panel.SPF.ECB
-  #panel <- panel %>% rename(FN0_5TN0_1 = T0_0)
-  #panel <- panel %>% rename(F4_0 = F4_0T4_4)
-  #panel <- panel %>% rename(F5_0 = F5_0T5_4)
-  #panel <- panel %>% rename(F6_0 = F6_0T6_4)
-  
-  #panel <- clean.csv
   
   # fix bins strictly positive number to infinity 
   foreach( i = 1:20, .errorhandling='remove') %do% {
@@ -99,13 +91,38 @@ SPFECBRenameBins <- function(panel) {
   
   # foreach loop just for error handling
   foreach( i = 1, .errorhandling='remove') %do% {
-    # fix negative infinity to 0 and 0 to positive infinity
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5T0_0 = T0_0)")
+    # fix negative infinity to 0 
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = T0_0)")
     eval(parse(text = renamed.columns.expression))
   }
   
   foreach( i = 1, .errorhandling = 'remove') %do% {
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_5T0_5 = F0_0)")
+    # fix 0 to positive infinity
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_0T0_5 = F0_0)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1, .errorhandling = 'remove') %do% {
+    # fix 0.5 to positive infinity
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_5T0_9 = F0_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1, .errorhandling = 'remove') %do% {
+    # fix negative infinity to 0.5
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_0T0_4 = T0_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1, .errorhandling = 'remove') %do% {
+    # fix -0.5 to positive infinity
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = FN0_5)")
+    eval(parse(text = renamed.columns.expression))
+  }
+  
+  foreach( i = 1, .errorhandling = 'remove') %do% {
+    # fix negative infinity to -0.5
+    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN1_0TN0_6 = TN0_5)")
     eval(parse(text = renamed.columns.expression))
   }
   
@@ -293,7 +310,7 @@ forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
   select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
          issued.year, issued.quarter, target.period, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
          FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
-         FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5T0_0, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
+         FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5TN0_1, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
          F2_0T2_4, F2_5T2_9, F3_0T3_4, F3_5T3_9, F4_0T4_4, F4_5T4_9, F5_0T5_4, F5_5T5_9, F6_0T6_4, F6_5T6_9, 
          F7_0T7_4, F7_5T7_9, F8_0T8_4, F8_5T8_9, F9_0T9_4, F9_5T9_9, F10_0T10_4, F10_5T10_9, F11_0T11_4, F11_5T11_9)
 

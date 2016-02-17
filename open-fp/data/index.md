@@ -4,7 +4,7 @@ title: Data
 permalink: /data/
 ---
 
-On this page you can download all submitted projections. Currently, all forecasts are included in one data set. You can download it in various formats (selective download is on our road-map).
+On this page you can download all submitted projections. Currently, all forecasts are included in one data set. You can download it in various formats (selective download is on our road-map). The script for gathering the forecasts from external sources can be found [here](https://github.com/onnokleen/open-fp).
 
 <!--IDEA: Insert Shiny app for download, so that everyone gets the newest version for his  (maybe not such a good idea - links are not accessible via https).-->
 
