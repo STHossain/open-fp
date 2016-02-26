@@ -9,5 +9,5 @@ panel %>%
 mutate(panel, x = mean()) %>% select(x)
 
 fit_beta <- function() {
-  
+  das
 }
