@@ -167,6 +167,8 @@ unzip(zipfile = "/home/onno/open-fp/Submissions/SPF.zip",
 
 do.call(file.remove, list(list.files("/home/onno/open-fp/temp/", full.names = TRUE)))
 
+# random comment here
+
 for(year in c(1999:2018)) {
   for (quarter in c(1:4)) {
     if (file.exists(paste0("/home/onno/open-fp/Submissions/SPF-ECB/",year,"Q", quarter,".csv")) == FALSE) {
