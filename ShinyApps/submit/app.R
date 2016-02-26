@@ -14,7 +14,7 @@ shinyApp(
   ui = fluidPage(
     shinyjs::useShinyjs(),
     shinyjs::inlineCSS(appCSS),
-    titlePanel("Submit forecasts"),
+    #titlePanel("Submit forecasts"),
     div(
       id = "form",
       textInput("forecaster.id", "Forecaster ID", ""),
@@ -35,8 +35,8 @@ shinyApp(
                   ),
       selectInput("Quarter",
                   labelMandatory("Target quarter"),
-                  choices = c(2016:2018),
-                  selected = 2016
+                  choices = c(1:4),
+                  selected = 2
       ),
       #selectInput("")
       #checkboxInput("used_shiny", "I've built a Shiny app in R before", FALSE),

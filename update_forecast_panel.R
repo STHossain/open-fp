@@ -159,7 +159,7 @@ forecast.panel.frontpage <- all.joined.reduced %>%
 
 write_rds(forecast.panel.frontpage, path = "/home/onno/open-fp/forecast_panel_frontpage.rds")
 
-forecast.panel <- all.joined.reduced
+forecast.panel <- all.joined
 
 write_rds(forecast.panel, path = "/home/onno/open-fp/forecast.panel.rds")
 
@@ -169,9 +169,9 @@ library(foreign)
 forecast.panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds")
 
 # Create various data formats
-write_csv(forecast.panel, path = "/var/www/html/data/forecast.panel.csv")
-write_rds(forecast.panel, path = "/var/www/html/data/forecast.panel.rds")
-write.dta(forecast.panel, file = "/var/www/html/data/forecast.panel.dta")
+write_csv(forecast.panel, path = "/var/www/open-fp/data/forecast.panel.csv")
+write_rds(forecast.panel, path = "/var/www/open-fp/data/forecast.panel.rds")
+write.dta(forecast.panel, file = "/var/www/open-fp/data/forecast.panel.dta")
 
 write_csv(forecast.panel, path = "/home/onno/open-fp/open-fp/data/forecast.panel.csv")
 write_rds(forecast.panel, path = "/home/onno/open-fp/open-fp/data/forecast.panel.rds")

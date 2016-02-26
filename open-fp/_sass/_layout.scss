@@ -40,7 +40,7 @@
             margin-left: 20px;
         }
     }
-
+/* Disable reactive design hamburger menu for mobile
     @include media-query($on-palm) {
         position: absolute;
         top: 9px;
@@ -84,6 +84,7 @@
             padding: 5px 10px;
         }
     }
+    */
 }
 
 

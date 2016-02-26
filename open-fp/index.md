@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Home
-# permalink: 
+# permalink: http://open-fp.org
 ---
 
 The Open Forecasting Project (Open-FP) is a long-term research project and provides a platform for sharing economic forecasts. The aim is to create a panel data set of macroeconomic forecasts that is both easy to use and employs recent findings of forecasting literature. 
@@ -18,12 +18,12 @@ Happy forecasting!
 
 ## What do we want to achieve? 
 
-As laid out by Patton (2015)[^fn2], forecast surveys should specify the loss function of interest. This is not done by either the SPF of the Federal Reserve nor the SPF of the ECB. We want to address this issue by letting the forecaster hand in the loss function they considered.
+As laid out by Patton (2015)[^fn2], forecast surveys should specify the loss function of interest. This is not done by either the SPF of the Federal Reserve nor the SPF of the ECB. We want to address this issue by prescribing the mean squared error and the continuous ranked probability score as evaluation criteria.
 
 Research questions at hand:
 
 * Are the results of Clements (2012)[^fn4] driven by the definition of large bins in the SPF forecasts?
-* How can we promote the need to communicate uncertainty in macroeconomic predictions.
+* How can we promote communicating uncertainty in macroeconomic predictions.
 
 ***
 
@@ -33,4 +33,4 @@ Research questions at hand:
 
 [^fn2]: Patton, Andrew J., 2015. Comparing Possibly Misspecified Forecasts. Working Paper. <http://www.ssc.upenn.edu/~fdiebold/papers/misc/Patton_bregman_comparison_26sep14.pdf>.
 
-[^fn4]: Clements, Michael P., 2014. Probability Distributions or Point Predictions? Survey Forecasts of US Output Growth and Inflation. International Journal of Forecasting. 30(1). Working paper version: <https://www2.warwick.ac.uk/fac/soc/economics/research/workingpapers/2012/twerp_976.pdf>
+[^fn4]: Clements, Michael P., 2014. Probability Distributions or Point Predictions? Survey Forecasts of US Output Growth and Inflation. International Journal of Forecasting. 30 (1). Working paper version: <https://www2.warwick.ac.uk/fac/soc/economics/research/workingpapers/2012/twerp_976.pdf>

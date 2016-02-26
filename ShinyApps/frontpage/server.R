@@ -4,7 +4,7 @@
 #library(plotly)
 
 
-current.year <- Sys.Date() %>% format("%Y") %>% as.numeric()
+current.year <- Sys.Date() %>% format("%Y") %>% as.numeric() 
 
 #load(forecast.panel.rds)
 forecast.panel <- readRDS("/home/onno/open-fp/forecast_panel_frontpage.rds")

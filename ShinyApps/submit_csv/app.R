@@ -16,7 +16,7 @@ shinyApp(
   ui = fluidPage(
     shinyjs::useShinyjs(),
     shinyjs::inlineCSS(appCSS),
-    titlePanel("Submit forecasts via .csv"),
+    #titlePanel("Submit forecasts via .csv"),
     
     div(
       id = "form",

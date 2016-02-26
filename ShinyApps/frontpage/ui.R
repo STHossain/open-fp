@@ -31,7 +31,7 @@ shinyUI(fluidPage(
     
     selectInput("variable", 
                 label = "Choose a variable to display",
-                choices = list("GDP growth", "Inflation", "Unemployment"),
+                choices = list("Inflation", "Unemployment"),
                 selected = "GDP growth"),
     
     selectInput("region", 

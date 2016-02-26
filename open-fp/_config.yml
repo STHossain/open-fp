@@ -1,6 +1,6 @@
 # Site settings
-title: The open forecasting project
-email: koala@orion.uberspace.de
+title: The Open Forecasting Project
+email: onno@open-fp.org
 description: > # this means to ignore newlines until "baseurl:"
   New description here
   line in _config.yml. It will appear in your document head meta (for
@@ -14,5 +14,5 @@ url: "http://open-fp.onnokleen.de" # the base hostname & protocol for your site
 markdown: kramdown
 
 source: /home/onno/open-fp/open-fp
-destination: /var/www/html/
+destination: /var/www/open-fp/
 exclude: [vendor]
