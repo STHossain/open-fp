@@ -1,6 +1,8 @@
-panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+#panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
 panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
 
+
+#investigate.spf <- panel %>% filter(fixed.event.or.horizon == "horizon", issued.year == 1999, target.year == 2003)
 
 panel %>% 
   filter(!is.na(panel.id)) %>%
@@ -18,7 +20,10 @@ beta.parameters <- function(i) {
   dist.panel[dist.panel == 0] <- NA
   
   if (length(dist.panel[!is.na(dist.panel)]) == 0) {
-    out = data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i])
+    out = data_frame(panel.id = panel$panel.id[i], 
+                     issued.period = panel$issued.period[i], 
+                     target.period = panel$target.period[i], 
+                     variable = panel$variable[i])
   } 
   
   dist.panel <- panel[i,15:51]
@@ -34,6 +39,7 @@ beta.parameters <- function(i) {
     
     
     out = data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i],
+                     variable = panel$variable[i],
                      fit.distr = "triangle", l = l, r = r, 
                      mean.distr = triangular.distribution(l, r, (l+r)/2)$mean,
                      var.distr  = triangular.distribution(l, r, (l+r)/2)$var)
@@ -50,30 +56,37 @@ beta.parameters <- function(i) {
     dist.panel <- panel[i,15:51] %>% setNames(seq(-6.1, 11.9, by = 0.5)) 
     r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))])
     
+    # equally weighted bins
     if(dist.panel[!is.na(dist.panel)][1] == dist.panel[!is.na(dist.panel)][2]) {
       mean.distr <- triangular.distribution(l, r, (l+r)/2)$mean
       var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
     }
     
+    # left bin has less probability mass than right bin
     if(dist.panel[!is.na(dist.panel)][1] < dist.panel[!is.na(dist.panel)][2]) {
       
-      alpha <- dist.panel[!is.na(dist.panel)][1] %>% as.numeric()
-      t <- sqrt(alpha/2)/(1-sqrt(alpha/2))/2
-      
-      mean.distr <- triangular.distribution(l + 0.5 - t, r, (l + 1.5 - t)/2)$mean
-      var.distr  <- triangular.distribution(l + 0.5 - t, r, (l + 1.5 - t)/2)$var
-      
-      
+      l.new <- r - 1/dist.panel[!is.na(dist.panel)][2] %>% as.numeric()
+      r.new <- r
+      c.new <- r - 0.5/dist.panel[!is.na(dist.panel)][2] %>% as.numeric()
+
+      mean.distr <- triangular.distribution(l.new, r.new, c.new)$mean
+      var.distr  <- triangular.distribution(l.new, r.new, c.new)$var
     }
     
-    
+    # left bin has more probability mass than right bin
     if(dist.panel[!is.na(dist.panel)][1] > dist.panel[!is.na(dist.panel)][2]) {
-      mean.distr <- (l+r)/2
-      var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
+      
+      l.new <- l
+      c.new <- l + 0.5/dist.panel[!is.na(dist.panel)][1] %>% as.numeric()
+      r.new <- l + 1/dist.panel[!is.na(dist.panel)][1] %>% as.numeric()
+
+      mean.distr <- triangular.distribution(l.new, r.new, c.new)$mean 
+      var.distr  <- triangular.distribution(l.new, r.new, c.new)$var
     }
     
     
     out = data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i],
+                     variable = panel$variable[i],
                      fit.distr = "triangle", l = l, r = r,
                      mean.distr = mean.distr,
                      var.distr  = var.distr)
@@ -166,6 +179,8 @@ beta.parameters <- function(i) {
     b <- optimum$p2
     
     out <- data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i],
+                      fixed.event.or.horizon = panel$fixed.event.or.horizon[i],
+                      variable = panel$variable[i],
                       fit.distr = "beta", a = a, b = b, l = l, r = r,
                       mean.distr = a/(a+b) * (r-l) + l,
                       var.distr = a * b/((a+b+1)*(a+b)^2)*(r-l)^2
@@ -179,19 +194,40 @@ beta.parameters <- function(i) {
   out
 }
 
-beta.parameters(5)
+beta.parameters(3)
 
-# comment here
+
+n <- dim(panel)[1]
+
+n <- 1000
 
 system.time(
-distribution.panel <- Reduce(full_join, lapply(c(1:1000), beta.parameters))
+distribution.panel <- Reduce(full_join, lapply(c(1:n), beta.parameters))
 )
-i = 88
+
+
+beta.dist.function <- function(t, l, r, a, b) {
+  
+  if(t <= l) {
+    return(0)
+  } else {
+    if(t >= r) {
+      return(1) 
+    } else {
+      int <- function(x) {
+        (x-l)^(a-1) * (r-x)^(b-1) / (r-l)^(a+b-1)
+      }
+      integrate(int, lower = l, upper = t)$value/beta(a, b)
+    }
+  }
+}
 
 beta.dist.density <- function(t,a,b,l,r) {
   beta.dist.function(t = t, a = a, b = b, l = l, r = r) - beta.dist.function(t = t-0.01, a = a, b = b, l = l, r = r)
 }
 
+
+i = 89
 support <- seq(distribution.panel$l[i], distribution.panel$r[i], by = 0.01)
 plot(support,
      sapply(support,
