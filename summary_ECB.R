@@ -1,4 +1,6 @@
 panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+
 
 panel %>% 
   filter(!is.na(panel.id)) %>%
