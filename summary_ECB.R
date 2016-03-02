@@ -184,7 +184,7 @@ beta.parameters(5)
 # comment here
 
 system.time(
-distribution.panel <- Reduce(full_join, lapply(c(1:333), beta.parameters))
+distribution.panel <- Reduce(full_join, lapply(c(1:1000), beta.parameters))
 )
 i = 88
 
