@@ -1,4 +1,6 @@
 panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+
 
 panel %>% 
   filter(!is.na(panel.id)) %>%
@@ -178,6 +180,8 @@ beta.parameters <- function(i) {
 }
 
 beta.parameters(5)
+
+# comment here
 
 system.time(
 distribution.panel <- Reduce(full_join, lapply(c(1:333), beta.parameters))
