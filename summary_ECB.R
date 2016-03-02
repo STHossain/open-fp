@@ -33,7 +33,7 @@ beta.parameters <- function(i) {
     
     out = data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i],
                      fit.distr = "triangle", l = l, r = r, 
-                     mean.distr = (l+r)/2,
+                     mean.distr = triangular.distribution(l, r, (l+r)/2)$mean,
                      var.distr  = triangular.distribution(l, r, (l+r)/2)$var)
   }
   
@@ -49,24 +49,25 @@ beta.parameters <- function(i) {
     r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))])
     
     if(dist.panel[!is.na(dist.panel)][1] == dist.panel[!is.na(dist.panel)][2]) {
-      mean.distr <- (l+r)/2
+      mean.distr <- triangular.distribution(l, r, (l+r)/2)$mean
       var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
     }
     
     if(dist.panel[!is.na(dist.panel)][1] < dist.panel[!is.na(dist.panel)][2]) {
       
+      alpha <- dist.panel[!is.na(dist.panel)][1] %>% as.numeric()
+      t <- sqrt(alpha/2)/(1-sqrt(alpha/2))/2
       
-      mean.distr <- (l+r)/2
-      var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
+      mean.distr <- triangular.distribution(l + 0.5 - t, r, (l + 1.5 - t)/2)$mean
+      var.distr  <- triangular.distribution(l + 0.5 - t, r, (l + 1.5 - t)/2)$var
+      
+      
     }
     
     
     if(dist.panel[!is.na(dist.panel)][1] > dist.panel[!is.na(dist.panel)][2]) {
-      alpha <- dist.panel[!is.na(dist.panel)][1] %>% as.numeric()
-      t <- sqrt(alpha/2)/(1-sqrt(alpha/2))
-      
-      mean.distr <- triangular.distribution(l + 0.5 - alpha, r, (l + 1.5 - alpha)/2)$mean
-      var.distr  <- triangular.distribution(l + 0.5 - alpha, r, (l + 1.5 - alpha)/2)$var
+      mean.distr <- (l+r)/2
+      var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
     }
     
     
@@ -121,23 +122,23 @@ beta.parameters <- function(i) {
       #r <- optim.parameters[4]
       sum((sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid)^2)
     }
+#     
+#     sum.abs.diff <- function(optim.parameters) {
+#       a <- optim.parameters[1]
+#       b <- optim.parameters[2]
+#       #l <- optim.parameters[3]
+#       #r <- optim.parameters[4]
+#       sum(abs(sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid))
+#     }
     
-    sum.abs.diff <- function(optim.parameters) {
-      a <- optim.parameters[1]
-      b <- optim.parameters[2]
-      #l <- optim.parameters[3]
-      #r <- optim.parameters[4]
-      sum(abs(sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid))
-    }
-    
-    max.abs.diff <- function(optim.parameters) {
-      a <- optim.parameters[1]
-      b <- optim.parameters[2]
-      #l <- optim.parameters[3]
-      #r <- optim.parameters[4]
-      max(abs(sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid))
-    }
-    
+#     max.abs.diff <- function(optim.parameters) {
+#       a <- optim.parameters[1]
+#       b <- optim.parameters[2]
+#       #l <- optim.parameters[3]
+#       #r <- optim.parameters[4]
+#       max(abs(sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid))
+#     }
+#     
     optimum <- optimx(par = c(1.5, 1.5), 
                       method = "L-BFGS-B",
                       fn = sum.sq.diff,
@@ -158,8 +159,14 @@ beta.parameters <- function(i) {
 #                       fn = sum.sq.diff,
 #                       lower = c(1, 1, -10, r),
 #                       upper = c(Inf, Inf, l, 30))
+    a <- optimum$p1
+      
+    b <- optimum$p2
+    
     out <- data_frame(panel.id = panel$panel.id[i], issued.period = panel$issued.period[i], target.period = panel$target.period[i],
-                      fit.distr = "beta", a = optimum$p1, b = optimum$p2, l = l, r = r
+                      fit.distr = "beta", a = a, b = b, l = l, r = r,
+                      mean.distr = a/(a+b) * (r-l) + l,
+                      var.distr = a * b/((a+b+1)*(a+b)^2)*(r-l)^2
                       #,
                       #a.abs = optimum.abs$p1, b.abs = optimum.abs$p2,
                       #a.max = optimum.max$p1, b.max = optimum.max$p2
@@ -170,10 +177,10 @@ beta.parameters <- function(i) {
   out
 }
 
-beta.parameters(3)
+beta.parameters(5)
 
 system.time(
-distribution.panel <- Reduce(full_join, lapply(c(1:100), beta.parameters))
+distribution.panel <- Reduce(full_join, lapply(c(1:333), beta.parameters))
 )
 i = 88
 
