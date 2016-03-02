@@ -304,7 +304,10 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
     4,
     ifelse( quarters.ahead <= 8,
            8,
-           NA)
+           ifelse( quarters.ahead == 15,
+                   16,
+                   NA )
+           )
   )
   ) 
 
