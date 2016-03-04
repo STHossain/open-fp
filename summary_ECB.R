@@ -200,7 +200,7 @@ beta.parameters <- function(n) {
 
 x <- beta.parameters(4)
 
-n <- 20
+n <- dim(panel)[1]
 
 system.time(
 distribution.panel <- lapply(100, beta.parameters)
