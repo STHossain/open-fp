@@ -8,7 +8,9 @@ forecast.panel.rds
 forecast_panel_frontpage.rds
 distribution_panel.rds
 ecb_panel_with_fitted_distribution.rds
+ecb_infl_panel_with_fitted_distribution.rds
 ecb_panel_with_fitted_distribution.dta
+ecb_infl_panel_with_fitted_distribution.dta
 temp/**
 Submissions/**
 ShinyApps/log/**
