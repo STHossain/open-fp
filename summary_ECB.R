@@ -208,6 +208,7 @@ distribution.panel <- lapply(100, beta.parameters)
 
 
 write_rds(distribution.panel, path = "distribution_panel.rds")
+distribution.panel <- read_rds("distribution_panel.rds")
 
 panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
   group_by(issued.period, target.period) %>%
@@ -216,8 +217,8 @@ panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
   
 
 infl.panel.with.beta.distributions <- panel.with.beta.distributions %>% 
-  #filter(issued.year == 2009) %>% 
-  #filter(a != 1.001 || is.na(a) == TRUE || b == 1.001) %>%
+  filter(issued.year == 2009) %>% 
+  filter(a != 1.001 || is.na(a) == TRUE || b == 1.001) %>%
   group_by(variable) %>% 
   filter(variable == "Inflation") %>%
   select(-l.new, - r.new, -region)
