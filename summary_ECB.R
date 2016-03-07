@@ -10,8 +10,6 @@ panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
 
 n <- dim(panel)[1]
 
-#investigate.spf <- panel %>% filter(fixed.event.or.horizon == "horizon", issued.year == 1999, target.year == 2003)
-
 panel %>% 
   filter(!is.na(panel.id)) %>%
   group_by(variable, issued.period, target.period) %>%
@@ -40,7 +38,7 @@ beta.parameters <- function(n) {
                                          var.empirical.distr = rep(NA, times = n),  
                                          l.new = rep(NA, times = n),
                                          r.new = rep(NA, times = n))
-  for(i in 65000:n) {
+  for(i in 1:n) {
     dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
     
@@ -221,7 +219,7 @@ x <- beta.parameters(4)
 n <- dim(panel)[1]
 
 system.time(
-distribution.panel <- beta.parameters(n)
+distribution.panel <- beta.parameters(200)
 )
 
 
@@ -230,8 +228,8 @@ distribution.panel <- read_rds("distribution_panel.rds")
 
 panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
   group_by(variable, issued.period, target.period) %>%
-  mutate(avg.distr.point.forecast = mean(mean.fitted.distr, na.rm = TRUE)) %>%
-  mutate(avg.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
+  mutate(avg.fitted.distr.point.forecast = mean(mean.fitted.distr, na.rm = TRUE)) %>%
+  mutate(avg.fitted.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
   
 
 infl.panel.with.beta.distributions <- panel.with.beta.distributions %>% 
@@ -279,10 +277,10 @@ ggplot(panel.with.beta.distributions, aes(y=mean.empirical.distr, x=mean.fitted.
   xlim(-5,15) +
   ylim(-5,15)
 
-ggplot(panel.with.beta.distributions, aes(y=avg.point.forecast, x=avg.distr.point.forecast)) + 
+ggplot(panel.with.beta.distributions, aes(y=avg.point.forecast, x=avg.fitted.distr.point.forecast)) + 
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-5,15) +
-  ylim(-5,15)
+ylim(-5,15)
 
 
 
