@@ -160,7 +160,7 @@ SPFECBRenameBins <- function(panel) {
 #x <- SPFECBRenameBins(panel = clean.csv)
 
 download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
-              destfile = "/home/onno/open-fp/Submissions/SPF.zip")
+              destfile = "Submissions/SPF.zip")
 
 unzip(zipfile = "/home/onno/open-fp/Submissions/SPF.zip",
       exdir = "/home/onno/open-fp/Submissions/SPF-ECB/")
