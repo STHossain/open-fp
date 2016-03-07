@@ -1,4 +1,10 @@
 #panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
+
+library(readr)
+library(optimx)
+library(dplyr)
+library(ggplot2)
+
 panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
 
 
@@ -19,7 +25,7 @@ triangular.distribution <- function(l, r, c) {
 
 
 beta.parameters <- function(n) {
-  empty.distribution.panel <- data_frame(panel.id = rep(NA, times = n),
+  distribution.panel <- data_frame(panel.id = rep(NA, times = n),
                                          issued.period = rep(NA, times = n),
                                          target.period = rep(NA, times = n),
                                          variable = rep(NA, times = n),
@@ -28,18 +34,27 @@ beta.parameters <- function(n) {
                                          b = rep(NA, times = n),
                                          l = rep(NA, times = n),
                                          r = rep(NA, times = n),
-                                         mean.distr = rep(NA, times = n),
-                                         var.distr = rep(NA, times = n),
+                                         mean.fitted.distr = rep(NA, times = n),
+                                         var.fitted.distr = rep(NA, times = n),
+                                         mean.empirical.distr = rep(NA, times = n),
+                                         var.empirical.distr = rep(NA, times = n),  
                                          l.new = rep(NA, times = n),
                                          r.new = rep(NA, times = n))
-  for(i in 1:n) {
+  for(i in 60000:n) {
     dist.panel <- panel[i,15:51]
     dist.panel[dist.panel == 0] <- NA
     
-    empty.distribution.panel$panel.id[i]      = panel$panel.id[i] 
-    empty.distribution.panel$issued.period[i] = panel$issued.period[i]
-    empty.distribution.panel$target.period[i] = panel$target.period[i]
-    empty.distribution.panel$variable[i]      = panel$variable[i]
+    distribution.panel$panel.id[i]      = panel$panel.id[i] 
+    distribution.panel$issued.period[i] = panel$issued.period[i]
+    distribution.panel$target.period[i] = panel$target.period[i]
+    distribution.panel$variable[i]      = panel$variable[i]
+    
+    if(sum(is.na(panel[i,15:51]), na.rm = TRUE) == 37) {
+      # no empirical distribution is calculated
+    } else {
+      distribution.panel$mean.empirical.distr[i] <- sum(as.numeric(panel[i,15:51]/100 * seq(-6.25 ,11., by = 0.5)), na.rm = TRUE)
+      distribution.panel$var.empirical.distr[i]  <- sum((seq(-6.25 ,11.75, by = 0.5) - as.numeric(distribution.panel$mean.empirical.distr[i]))^2 * as.numeric(panel[i,15:51]/100), na.rm = TRUE)
+    }
     
     if (length(dist.panel[!is.na(dist.panel)]) == 0) {
       # nothing happens
@@ -58,11 +73,11 @@ beta.parameters <- function(n) {
       dist.panel[dist.panel == 0] <- NA
       r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))]) + 0.05
       
-      empty.distribution.panel$fit.distr[i] = "triangle" 
-      empty.distribution.panel$l[i]         = l
-      empty.distribution.panel$r[i]         = r
-      empty.distribution.panel$mean.distr   = triangular.distribution(l, r, (l+r)/2)$mean
-      var.distr                             = triangular.distribution(l, r, (l+r)/2)$var
+      distribution.panel$fit.distr[i] = "triangle" 
+      distribution.panel$l[i]         = l
+      distribution.panel$r[i]         = r
+      distribution.panel$mean.fitted.distr   = triangular.distribution(l, r, (l+r)/2)$mean
+      var.fitted.distr                             = triangular.distribution(l, r, (l+r)/2)$var
     }
     
     dist.panel <- panel[i,15:51]
@@ -85,8 +100,8 @@ beta.parameters <- function(n) {
       if(prob.left.bin == prob.right.bin) {
         l.new <- l
         r.new <- r
-        mean.distr <- triangular.distribution(l, r, (l+r)/2)$mean
-        var.distr  <- triangular.distribution(l, r, (l+r)/2)$var
+        mean.fitted.distr <- triangular.distribution(l, r, (l+r)/2)$mean
+        var.fitted.distr  <- triangular.distribution(l, r, (l+r)/2)$var
       }
       
       # left bin has less probability mass than right bin
@@ -96,8 +111,8 @@ beta.parameters <- function(n) {
         r.new <- as.numeric(r)
         c.new <- (r.new + l.new)/2
         
-        mean.distr <- triangular.distribution(l.new, r.new, c.new)$mean
-        var.distr  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.fitted.distr <- triangular.distribution(l.new, r.new, c.new)$mean
+        var.fitted.distr  <- triangular.distribution(l.new, r.new, c.new)$var
       }
       
       # left bin has more probability mass than right bin
@@ -107,18 +122,18 @@ beta.parameters <- function(n) {
         r.new <- as.numeric(l + 0.5 + 0.5 * sqrt(prob.right.bin/2)/(1-sqrt(prob.right.bin/2)))
         c.new <- (r.new + l.new)/2
         
-        mean.distr <- triangular.distribution(l.new, r.new, c.new)$mean 
-        var.distr  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.fitted.distr <- triangular.distribution(l.new, r.new, c.new)$mean 
+        var.fitted.distr  <- triangular.distribution(l.new, r.new, c.new)$var
       }
       
       
-      empty.distribution.panel$fit.distr[i]  = "triangle"
-      empty.distribution.panel$l[i]          = l
-      empty.distribution.panel$r[i]          = r
-      empty.distribution.panel$l.new[i]      = l.new
-      empty.distribution.panel$r.new[i]      = r.new
-      empty.distribution.panel$mean.distr[i] = mean.distr
-      empty.distribution.panel$var.distr[i]  = var.distr
+      distribution.panel$fit.distr[i]  = "triangle"
+      distribution.panel$l[i]          = l
+      distribution.panel$r[i]          = r
+      distribution.panel$l.new[i]      = l.new
+      distribution.panel$r.new[i]      = r.new
+      distribution.panel$mean.fitted.distr[i] = mean.fitted.distr
+      distribution.panel$var.fitted.distr[i]  = var.fitted.distr
     }
     
     dist.panel <- panel[i,15:51]
@@ -165,29 +180,29 @@ beta.parameters <- function(n) {
         sum((sapply(t.grid, beta.dist.function, a = a, b = b, l = l, r = r) - f.t.grid)^2)
       }
       
-      optimum <- optimx(par = c(1.5, 1.5), 
+      optimum <- optimx(par = c(2, 2), 
                         method = "L-BFGS-B",
                         fn = sum.sq.diff,
                         lower = c(1.001,1.001))
       
-      if(optimum$p1 == 0.001) {
-        optimum <- optimx(par = c(3, 3), 
-                          method = "L-BFGS-B",
-                          fn = sum.sq.diff,
-                          lower = c(1.001,1.001))
-      }
+      # if(optimum$p1 == 0.001) {
+      #   optimum <- optimx(par = c(3, 3), 
+      #                     method = "L-BFGS-B",
+      #                     fn = sum.sq.diff,
+      #                     lower = c(1.001,1.001))
+      # }
       a <- optimum$p1
       
       b <- optimum$p2
       
       
-      empty.distribution.panel$fit.distr[i] = "beta"
-      empty.distribution.panel$a[i] = a 
-      empty.distribution.panel$b[i] = b 
-      empty.distribution.panel$l[i] = l 
-      empty.distribution.panel$r[i] = r
-      empty.distribution.panel$mean.distr[i] = a/(a+b) * (r-l) + l
-      empty.distribution.panel$var.distr[i] = a * b/((a+b+1)*(a+b)^2)*(r-l)^2
+      distribution.panel$fit.distr[i] = "beta"
+      distribution.panel$a[i] = a 
+      distribution.panel$b[i] = b 
+      distribution.panel$l[i] = l 
+      distribution.panel$r[i] = r
+      distribution.panel$mean.fitted.distr[i] = a/(a+b) * (r-l) + l
+      distribution.panel$var.fitted.distr[i] = a * b/((a+b+1)*(a+b)^2)*(r-l)^2
       
       
     }
@@ -203,7 +218,7 @@ x <- beta.parameters(4)
 n <- dim(panel)[1]
 
 system.time(
-distribution.panel <- lapply(100, beta.parameters)
+distribution.panel <- beta.parameters(n)
 )
 
 
@@ -212,8 +227,8 @@ distribution.panel <- read_rds("distribution_panel.rds")
 
 panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
   group_by(issued.period, target.period) %>%
-  mutate(avg.distr.point.forecast = mean(mean.distr, na.rm = TRUE)) %>%
-  mutate(avg.distr.uncertainty = var(var.distr, na.rm = TRUE))
+  mutate(avg.distr.point.forecast = mean(mean.fitted.distr, na.rm = TRUE)) %>%
+  mutate(avg.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
   
 
 infl.panel.with.beta.distributions <- panel.with.beta.distributions %>% 
@@ -234,7 +249,7 @@ plot.data <- panel.with.beta.distributions %>%
   filter(variable == "Inflation") %>%
   select(-l.new, - r.new)
 
-qplot(mean.distr, point.forecast, data = panel.with.beta.distributions, color = "variable")
+qplot(mean.fitted.distr, point.forecast, data = panel.with.beta.distributions, color = "variable")
 
 ggplot(dat, aes(x=xvar, y=yvar, color=cond)) +
   geom_point(shape=1) +
@@ -246,12 +261,12 @@ plot.data <- panel.with.beta.distributions %>%
   filter(variable == "Inflation")# %>%
   #filter(fit.distr == "beta")
 
-ggplot(plot.data, aes(y=point.forecast, x=mean.distr)) + 
+ggplot(plot.data, aes(y=point.forecast, x=mean.fitted.distr)) + 
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-3,5) +
   ylim(-3,5)
 
-ggplot(plot.data, aes(y=point.forecast, x=mean.distr)) + 
+ggplot(plot.data, aes(y=point.forecast, x=mean.fitted.distr)) + 
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-5,15) +
   ylim(-5,15)
