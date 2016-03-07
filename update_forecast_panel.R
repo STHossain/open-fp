@@ -1,4 +1,5 @@
 setwd("/home/onno/open-fp/")
+#setwd("~/Git/open-fp/")
 library("readr")
 library("haven")
 library("dplyr")
@@ -28,13 +29,13 @@ for (i in c(1:5)) {
   download.file(paste0("https://www.philadelphiafed.org/-/media/research-and-data/real-time-center/survey-of-professional-forecasters/historical-data/micro",i,".xls"),
                 method = "curl",
                 extra = "--insecure",
-                destfile = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"))
+                destfile = paste0("Submissions/SPF-US/micro",i,".xls"))
 }
 
 x <- foreach(i = 1:5) %do% {
   
   SPF.df <- foreach(variable = c("RGDP","UNEMP","HOUSING","CPI")) %do% {
-    SPFdataUS <- read_excel(path = paste0("/home/onno/open-fp/Submissions/SPF-US/micro",i,".xls"), 
+    SPFdataUS <- read_excel(path = paste0("Submissions/SPF-US/micro",i,".xls"), 
                             sheet = paste0(variable),
                             col_names = TRUE) %>%
       rename(panel.id = ID, issued.year = YEAR, issued.quarter = QUARTER)
@@ -157,11 +158,11 @@ forecast.panel.frontpage <- all.joined.reduced %>%
   filter(target.year == 2015 | target.year == 2016 | target.year == 2017 | target.year == 2020) %>%
   filter(is.na(point.forecast) == FALSE)
 
-write_rds(forecast.panel.frontpage, path = "/home/onno/open-fp/forecast_panel_frontpage.rds")
+write_rds(forecast.panel.frontpage, path = "forecast_panel_frontpage.rds")
 
 forecast.panel <- all.joined
 
-write_rds(forecast.panel, path = "/home/onno/open-fp/forecast.panel.rds")
+write_rds(forecast.panel, path = "forecast.panel.rds")
 
 library(readr)
 library(foreign)
