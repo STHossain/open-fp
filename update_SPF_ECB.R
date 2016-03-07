@@ -162,20 +162,20 @@ SPFECBRenameBins <- function(panel) {
 download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
               destfile = "Submissions/SPF.zip")
 
-unzip(zipfile = "/home/onno/open-fp/Submissions/SPF.zip",
-      exdir = "/home/onno/open-fp/Submissions/SPF-ECB/")
+unzip(zipfile = "Submissions/SPF.zip",
+      exdir = "Submissions/SPF-ECB/")
 
-do.call(file.remove, list(list.files("/home/onno/open-fp/temp/", full.names = TRUE)))
+do.call(file.remove, list(list.files("temp/", full.names = TRUE)))
 
 # random comment here
 
 for(year in c(1999:2018)) {
   for (quarter in c(1:4)) {
-    if (file.exists(paste0("/home/onno/open-fp/Submissions/SPF-ECB/",year,"Q", quarter,".csv")) == FALSE) {
+    if (file.exists(paste0("Submissions/SPF-ECB/",year,"Q", quarter,".csv")) == FALSE) {
       
     } else {
       
-      dataSPF <- read_csv(file = paste0("/home/onno/open-fp/Submissions/SPF-ECB/",year,"Q", quarter,".csv"), col_names = FALSE)
+      dataSPF <- read_csv(file = paste0("Submissions/SPF-ECB/",year,"Q", quarter,".csv"), col_names = FALSE)
       empty.rows <- c(1)
       for (i in 1:as.integer(count(dataSPF))) {
         if(dataSPF[i,] %>% is.na() %>% sum() == length(dataSPF)) {
@@ -192,7 +192,7 @@ for(year in c(1999:2018)) {
           
           if(grepl(pattern = "INFLATION EXPECTATIONS; YEAR-ON-YEAR CHANGE IN HICP", x = data.variable[1,1]) == TRUE) {
             
-            temp.path <- paste0("/home/onno/open-fp/temp/Inflation", year,"Q",quarter, ".csv")
+            temp.path <- paste0("temp/Inflation", year,"Q",quarter, ".csv")
             write_csv(data.variable[-1,], path = temp.path, col_names = FALSE, append = FALSE)
             clean.csv <- cbind(data_frame(variable = "Inflation"), 
                                read_csv(file = temp.path, col_names = TRUE),
@@ -213,7 +213,7 @@ for(year in c(1999:2018)) {
           
           if(grepl(pattern = "GROWTH EXPECTATIONS; YEAR-ON-YEAR CHANGE IN REAL GDP", x = data.variable[1,1]) ) {
             
-            temp.path <- paste0("/home/onno/open-fp/temp/GDP", year,"Q",quarter, ".csv")
+            temp.path <- paste0("temp/GDP", year,"Q",quarter, ".csv")
             write_csv(data.variable[-1,], path = temp.path, col_names = FALSE, append = FALSE)
             clean.csv <- cbind(data_frame(variable = "GDP growth"), 
                                read_csv(file = temp.path, col_names = TRUE),
@@ -234,7 +234,7 @@ for(year in c(1999:2018)) {
           
           if(grepl(pattern = "EXPECTED UNEMPLOYMENT RATE; PERCENTAGE OF ", x = data.variable[1,1]) ) {
             
-            temp.path <- paste0("/home/onno/open-fp/temp/Unemployment", year,"Q",quarter, ".csv")
+            temp.path <- paste0("temp/Unemployment", year,"Q",quarter, ".csv")
             write_csv(data.variable[-1,], temp.path, col_names = FALSE, append = FALSE)
             clean.csv <- cbind(data_frame(variable = "Unemployment"), 
                                read_csv(file = temp.path, col_names = TRUE),
@@ -262,7 +262,7 @@ for(year in c(1999:2018)) {
 
 rm(data.variable, dataSPF, clean.csv, quarter, year, temp.path,i, empty.rows)
 
-files <- list.files(file.path("/home/onno/open-fp/temp/"), full.names = TRUE)
+files <- list.files(file.path("temp/"), full.names = TRUE)
 forecast.panel.SPF.ECB <- lapply(files, read_csv, col_names = TRUE)
 rm(files)
 
@@ -321,6 +321,6 @@ forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
          F12_0T12_4, F12_5T12_9, 
          F13_0T13_4, F13_5T13_9, 
          F14_0T14_4, F14_5T14_9,
-         F15_0T15_4, F15_5T15_9)
+         F15_0T15_4)
 
-write_csv(forecast.panel.SPF.ECB2, path = "/home/onno/open-fp/Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
+write_csv(forecast.panel.SPF.ECB2, path = "Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
