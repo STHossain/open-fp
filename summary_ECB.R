@@ -14,7 +14,7 @@ n <- dim(panel)[1]
 
 panel %>% 
   filter(!is.na(panel.id)) %>%
-  group_by(issued.period, target.period) %>%
+  group_by(variable, issued.period, target.period) %>%
   mutate(avg.point.forecast = mean(point.forecast, na.rm = TRUE)) %>%
   mutate(avg.var.point.forecast = var(point.forecast, na.rm = TRUE)) -> panel
 
@@ -40,8 +40,8 @@ beta.parameters <- function(n) {
                                          var.empirical.distr = rep(NA, times = n),  
                                          l.new = rep(NA, times = n),
                                          r.new = rep(NA, times = n))
-  for(i in 60000:n) {
-    dist.panel <- panel[i,15:51]
+  for(i in 65000:n) {
+    dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
     
     distribution.panel$panel.id[i]      = panel$panel.id[i] 
@@ -49,47 +49,47 @@ beta.parameters <- function(n) {
     distribution.panel$target.period[i] = panel$target.period[i]
     distribution.panel$variable[i]      = panel$variable[i]
     
-    if(sum(is.na(panel[i,15:51]), na.rm = TRUE) == 37) {
+    if(sum(is.na(panel[i,15:58]), na.rm = TRUE) == 44) {
       # no empirical distribution is calculated
     } else {
-      distribution.panel$mean.empirical.distr[i] <- sum(as.numeric(panel[i,15:51]/100 * seq(-6.25 ,11., by = 0.5)), na.rm = TRUE)
-      distribution.panel$var.empirical.distr[i]  <- sum((seq(-6.25 ,11.75, by = 0.5) - as.numeric(distribution.panel$mean.empirical.distr[i]))^2 * as.numeric(panel[i,15:51]/100), na.rm = TRUE)
+      distribution.panel$mean.empirical.distr[i] <- sum(as.numeric(panel[i,15:58]/100 * seq(-6.25 ,15.25, by = 0.5)), na.rm = TRUE)
+      distribution.panel$var.empirical.distr[i]  <- sum((seq(-6.25 ,15.25, by = 0.5) - as.numeric(distribution.panel$mean.empirical.distr[i]))^2 * as.numeric(panel[i,15:58]/100), na.rm = TRUE)
     }
     
     if (length(dist.panel[!is.na(dist.panel)]) == 0) {
       # nothing happens
     } 
     
-    dist.panel <- panel[i,15:51]
+    dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
     
     if (length(dist.panel[!is.na(dist.panel)]) == 1) {
       # find l
-      dist.panel <- panel[i,15:51] %>% setNames(as.character(seq(-6.5,11.5, by = 0.5)))
+      dist.panel <- panel[i,15:58] %>% setNames(as.character(seq(-6.5, 15, by = 0.5)))
       dist.panel[dist.panel == 0] <- NA
       l <- as.numeric(colnames(dist.panel)[min(which(!is.na(dist.panel[1,])))]) - 0.05
       # find r
-      dist.panel <- panel[i,15:51] %>% setNames(seq(-6.1, 11.9, by = 0.5))
+      dist.panel <- panel[i,15:58] %>% setNames(seq(-6.1, 15.4, by = 0.5))
       dist.panel[dist.panel == 0] <- NA
       r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))]) + 0.05
       
       distribution.panel$fit.distr[i] = "triangle" 
       distribution.panel$l[i]         = l
       distribution.panel$r[i]         = r
-      distribution.panel$mean.fitted.distr   = triangular.distribution(l, r, (l+r)/2)$mean
-      var.fitted.distr                             = triangular.distribution(l, r, (l+r)/2)$var
+      distribution.panel$mean.fitted.distr[i] = triangular.distribution(l, r, (l+r)/2)$mean
+      var.fitted.distr[i]                     = triangular.distribution(l, r, (l+r)/2)$var
     }
     
-    dist.panel <- panel[i,15:51]
+    dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
     
     if (length(dist.panel[!is.na(dist.panel)]) == 2) {
       # find l
-      dist.panel <- panel[i,15:51] %>% setNames(as.character(seq(-6.5,11.5, by = 0.5)))
+      dist.panel <- panel[i,15:58] %>% setNames(as.character(seq(-6.5, 15, by = 0.5)))
       dist.panel[dist.panel == 0] <- NA
       l <- as.numeric(colnames(dist.panel)[min(which(!is.na(dist.panel[1,])))]) -0.05
       # find r
-      dist.panel <- panel[i,15:51] %>% setNames(seq(-6.1, 11.9, by = 0.5))
+      dist.panel <- panel[i,15:58] %>% setNames(seq(-6.1, 15.4, by = 0.5))
       dist.panel[dist.panel == 0] <- NA
       r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))]) + 0.05
       
@@ -100,8 +100,8 @@ beta.parameters <- function(n) {
       if(prob.left.bin == prob.right.bin) {
         l.new <- l
         r.new <- r
-        mean.fitted.distr <- triangular.distribution(l, r, (l+r)/2)$mean
-        var.fitted.distr  <- triangular.distribution(l, r, (l+r)/2)$var
+        mean.triangle <- triangular.distribution(l, r, (l+r)/2)$mean
+        var.triangle  <- triangular.distribution(l, r, (l+r)/2)$var
       }
       
       # left bin has less probability mass than right bin
@@ -111,8 +111,8 @@ beta.parameters <- function(n) {
         r.new <- as.numeric(r)
         c.new <- (r.new + l.new)/2
         
-        mean.fitted.distr <- triangular.distribution(l.new, r.new, c.new)$mean
-        var.fitted.distr  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.triangle <- triangular.distribution(l.new, r.new, c.new)$mean
+        var.triangle  <- triangular.distribution(l.new, r.new, c.new)$var
       }
       
       # left bin has more probability mass than right bin
@@ -122,8 +122,8 @@ beta.parameters <- function(n) {
         r.new <- as.numeric(l + 0.5 + 0.5 * sqrt(prob.right.bin/2)/(1-sqrt(prob.right.bin/2)))
         c.new <- (r.new + l.new)/2
         
-        mean.fitted.distr <- triangular.distribution(l.new, r.new, c.new)$mean 
-        var.fitted.distr  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.triangle <- triangular.distribution(l.new, r.new, c.new)$mean 
+        var.triangle  <- triangular.distribution(l.new, r.new, c.new)$var
       }
       
       
@@ -132,20 +132,22 @@ beta.parameters <- function(n) {
       distribution.panel$r[i]          = r
       distribution.panel$l.new[i]      = l.new
       distribution.panel$r.new[i]      = r.new
-      distribution.panel$mean.fitted.distr[i] = mean.fitted.distr
-      distribution.panel$var.fitted.distr[i]  = var.fitted.distr
+      distribution.panel$mean.fitted.distr[i] = mean.triangle
+      distribution.panel$var.fitted.distr[i]  = var.triangle
+      
+      rm(mean.triangle, var.triangle)
     }
     
-    dist.panel <- panel[i,15:51]
+    dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
     
     if (length(dist.panel[!is.na(dist.panel)]) >= 3) {
       # find l
-      dist.panel <- panel[i,15:51] %>% setNames(as.character(seq(-6.5,11.5, by = 0.5)))
+      dist.panel <- panel[i,15:58] %>% setNames(as.character(seq(-6.5, 15, by = 0.5)))
       dist.panel[dist.panel == 0] <- NA
       l <- as.numeric(colnames(dist.panel)[min(which(!is.na(dist.panel[1,])))]) - 0.05
       # find r
-      dist.panel <- panel[i,15:51] %>% setNames(seq(-6.1, 11.9, by = 0.5)) 
+      dist.panel <- panel[i,15:58] %>% setNames(seq(-6.1, 15.4, by = 0.5)) 
       dist.panel[dist.panel == 0] <- NA
       r <- as.numeric(colnames(dist.panel)[max(which(!is.na(dist.panel[1,])))]) + 0.05
       
@@ -203,14 +205,15 @@ beta.parameters <- function(n) {
       distribution.panel$r[i] = r
       distribution.panel$mean.fitted.distr[i] = a/(a+b) * (r-l) + l
       distribution.panel$var.fitted.distr[i] = a * b/((a+b+1)*(a+b)^2)*(r-l)^2
-      
+      rm(a,b,l,r,t.grid,f.t.grid)
       
     }
     if (i %% 100 == 0) {
       print(i)
     }
+    
   }
-  empty.distribution.panel
+  distribution.panel
 }
 
 x <- beta.parameters(4)
@@ -226,7 +229,7 @@ write_rds(distribution.panel, path = "distribution_panel.rds")
 distribution.panel <- read_rds("distribution_panel.rds")
 
 panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
-  group_by(issued.period, target.period) %>%
+  group_by(variable, issued.period, target.period) %>%
   mutate(avg.distr.point.forecast = mean(mean.fitted.distr, na.rm = TRUE)) %>%
   mutate(avg.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
   
@@ -257,7 +260,7 @@ ggplot(dat, aes(x=xvar, y=yvar, color=cond)) +
 plot.data <- panel.with.beta.distributions %>% 
   #filter(issued.year == 2009) %>% 
   #filter(a != 1.001 || is.na(a) == TRUE || b == 1.001) %>%
-  group_by(variable) %>% 
+  #group_by(variable) %>% 
   filter(variable == "Inflation")# %>%
   #filter(fit.distr == "beta")
 
@@ -266,7 +269,17 @@ ggplot(plot.data, aes(y=point.forecast, x=mean.fitted.distr)) +
   xlim(-3,5) +
   ylim(-3,5)
 
-ggplot(plot.data, aes(y=point.forecast, x=mean.fitted.distr)) + 
+ggplot(panel.with.beta.distributions, aes(y=point.forecast, x=mean.fitted.distr)) + 
+  geom_point(aes(group = variable, color = variable), size = 1) +
+  xlim(-5,15) +
+  ylim(-5,15)
+
+ggplot(panel.with.beta.distributions, aes(y=mean.empirical.distr, x=mean.fitted.distr)) + 
+  geom_point(aes(group = variable, color = variable), size = 1) +
+  xlim(-5,15) +
+  ylim(-5,15)
+
+ggplot(panel.with.beta.distributions, aes(y=avg.point.forecast, x=avg.distr.point.forecast)) + 
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-5,15) +
   ylim(-5,15)
