@@ -317,6 +317,10 @@ forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
          FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
          FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5TN0_1, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
          F2_0T2_4, F2_5T2_9, F3_0T3_4, F3_5T3_9, F4_0T4_4, F4_5T4_9, F5_0T5_4, F5_5T5_9, F6_0T6_4, F6_5T6_9, 
-         F7_0T7_4, F7_5T7_9, F8_0T8_4, F8_5T8_9, F9_0T9_4, F9_5T9_9, F10_0T10_4, F10_5T10_9, F11_0T11_4, F11_5T11_9)
+         F7_0T7_4, F7_5T7_9, F8_0T8_4, F8_5T8_9, F9_0T9_4, F9_5T9_9, F10_0T10_4, F10_5T10_9, F11_0T11_4, F11_5T11_9,
+         F12_0T12_4, F12_5T12_9, 
+         F13_0T13_4, F13_5T12_9, 
+         F14_0T14_4, F14_5T12_9,
+         F15_0T15_4, F15_5T12_9)
 
 write_csv(forecast.panel.SPF.ECB2, path = "/home/onno/open-fp/Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
