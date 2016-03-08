@@ -246,7 +246,11 @@ panel.with.beta.distributions <- full_join(panel, distribution.panel) %>%
 panel.christian.matthias <- panel.with.beta.distributions %>% 
   select(panel.id, variable, issued.period, target.period.ECB,
          fixed.event.or.horizon,
-         quarters.ahead.ECB, point.forecast, 
+         quarters.ahead.ECB, point.forecast,
+         mean.fitted.distr,
+         var.fitted.distr,
+         mean.empirical.distr,
+         var.empirical.distr,
          avg.point.forecast, var.point.forecast,
          avg.fitted.distr.mean,
          avg.fitted.distr.variance,
@@ -258,10 +262,8 @@ panel.christian.matthias$variable[panel.christian.matthias$variable == "GDP grow
 panel.christian.matthias$variable[panel.christian.matthias$variable == "Inflation"] <- "infl"
 panel.christian.matthias$variable[panel.christian.matthias$variable == "Unemployment"] <- "unempl"
 
-write.dta(panel.christian.matthias, file = "ecb_spf_summaries.dta")
-  
-write_rds(infl.panel.with.beta.distributions, path = "ecb_infl_panel_with_fitted_distribution.rds")
-write.dta(infl.panel.with.beta.distributions, file = "ecb_infl_panel_with_fitted_distribution.dta")
+write.dta(panel.christian.matthias, file = "ecb_spf.dta")
+write_csv(panel.christian.matthias, path = "ecb_spf.csv")
 
 plot.data <- panel.with.beta.distributions %>% 
   #filter(issued.year == 2009) %>% 

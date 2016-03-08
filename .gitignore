@@ -16,3 +16,7 @@ Submissions/**
 ShinyApps/log/**
 open-fp/data/forecast.panel.csv
 open-fp/data/forecast.panel.dta
+ecb_spf_summaries.dta
+ecb_spf.dta
+ecb_spf.csv
+all.Rout.txt
