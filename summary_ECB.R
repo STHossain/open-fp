@@ -14,7 +14,8 @@ panel %>%
   filter(!is.na(panel.id)) %>%
   group_by(variable, issued.period, target.period) %>%
   mutate(avg.point.forecast = mean(point.forecast, na.rm = TRUE)) %>%
-  mutate(avg.var.point.forecast = var(point.forecast, na.rm = TRUE)) -> panel
+  mutate(var.point.forecast = var(point.forecast, na.rm = TRUE)) %>%
+  ungroup() -> panel
 
 triangular.distribution <- function(l, r, c) {
   list(mean = (l + r + c)/3, 
@@ -232,15 +233,35 @@ distribution.panel <- beta.parameters(n)
 write_rds(distribution.panel, path = "distribution_panel.rds")
 distribution.panel <- read_rds("distribution_panel.rds")
 
-panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
+target_period_ECB <- function(fixed.event.or.horizon, target.year, issued.quarter) {
+  if (fixed.event.or.hoirzon == "event") {
+    NA
+  }
+  else {
+    paste0()
+  }
+}
+
+panel.with.beta.distributions <- full_join(panel, distribution.panel) %>%
   group_by(variable, issued.period, target.period) %>%
-  mutate(avg.fitted.distr.point.forecast = mean(mean.fitted.distr, na.rm = TRUE)) %>%
-  mutate(avg.fitted.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
-  
+  mutate(avg.fitted.distr.mean = mean(mean.fitted.distr, na.rm = TRUE)) %>%
+  mutate(avg.fitted.distr.variance = var(var.fitted.distr, na.rm = TRUE)) %>%
+  mutate(avg.empirical.distr.mean = mean(mean.empirical.distr, na.rm = TRUE)) %>%
+  mutate(avg.empirical.distr.variance = var(var.empirical.distr, na.rm = TRUE)) %>%
+  ungroup()
 
 panel.christian.matthias <- panel.with.beta.distributions %>% 
-  select()
+  select(panel.id, variable, issued.period, target.period.ECB,
+         fixed.event.or.horizon,
+         quarters.ahead.ECB, point.forecast, 
+         avg.point.forecast, var.point.forecast,
+         avg.fitted.distr.mean,
+         avg.fitted.distr.variance,
+         avg.empirical.distr.mean,
+         avg.empirical.distr.variance
+         )
 
+write.dta(panel.christian.matthias, file = "ecb_spf_summaries")
   
 write_rds(infl.panel.with.beta.distributions, path = "ecb_infl_panel_with_fitted_distribution.rds")
 write.dta(infl.panel.with.beta.distributions, file = "ecb_infl_panel_with_fitted_distribution.dta")
@@ -270,6 +291,13 @@ ggplot(plot.data, aes(y=point.forecast, x=mean.fitted.distr)) +
   ylim(-3,5)
 
 ggplot(panel.with.beta.distributions, aes(y=point.forecast, x=mean.fitted.distr)) + 
+  geom_point(aes(group = variable, color = variable), size = 1) +
+  xlim(-5,15) +
+  ylim(-5,15)
+
+
+
+ggplot(panel.with.beta.distributions, aes(y=point.forecast, x=mean.empirical.distr)) + 
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-5,15) +
   ylim(-5,15)

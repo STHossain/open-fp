@@ -145,7 +145,7 @@ forecast.panel.SPF.US <- forecast.panel.SPF.US %>%
                   "Q",
                   forecast.panel.SPF.US$target.quarter))))
 
-all.joined <- full_join( forecast.panel.SPF.ECB2, forecast.panel.SPF.US)
+all.joined <- full_join( forecast.panel.SPF.ECB, forecast.panel.SPF.US)
 
 all.joined.reduced <- all.joined %>% select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon, 
                        issued.year, issued.quarter, years.ahead, quarters.ahead, target.year, target.quarter)
@@ -158,11 +158,11 @@ forecast.panel.frontpage <- all.joined.reduced %>%
   filter(target.year == 2015 | target.year == 2016 | target.year == 2017 | target.year == 2020) %>%
   filter(is.na(point.forecast) == FALSE)
 
+rm(all.joined.reduced)
 write_rds(forecast.panel.frontpage, path = "forecast_panel_frontpage.rds")
+rm(forecast.panel.frontpage, forecast.panel.SPF.US, forecast.panel.SPF.ECB)
 
-forecast.panel <- all.joined
-
-write_rds(forecast.panel, path = "forecast.panel.rds")
+write_rds(all.joined, path = "forecast.panel.rds")
 
 library(readr)
 library(foreign)
