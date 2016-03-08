@@ -231,16 +231,9 @@ distribution.panel <- beta.parameters(n)
 
 
 write_rds(distribution.panel, path = "distribution_panel.rds")
-distribution.panel <- read_rds("distribution_panel.rds")
 
-target_period_ECB <- function(fixed.event.or.horizon, target.year, issued.quarter) {
-  if (fixed.event.or.hoirzon == "event") {
-    NA
-  }
-  else {
-    paste0()
-  }
-}
+
+distribution.panel <- read_rds("distribution_panel.rds")
 
 panel.with.beta.distributions <- full_join(panel, distribution.panel) %>%
   group_by(variable, issued.period, target.period) %>%
@@ -261,7 +254,11 @@ panel.christian.matthias <- panel.with.beta.distributions %>%
          avg.empirical.distr.variance
          )
 
-write.dta(panel.christian.matthias, file = "ecb_spf_summaries")
+panel.christian.matthias$variable[panel.christian.matthias$variable == "GDP growth"] <- "gdpgrowth"
+panel.christian.matthias$variable[panel.christian.matthias$variable == "Inflation"] <- "infl"
+panel.christian.matthias$variable[panel.christian.matthias$variable == "Unemployment"] <- "unempl"
+
+write.dta(panel.christian.matthias, file = "ecb_spf_summaries.dta")
   
 write_rds(infl.panel.with.beta.distributions, path = "ecb_infl_panel_with_fitted_distribution.rds")
 write.dta(infl.panel.with.beta.distributions, file = "ecb_infl_panel_with_fitted_distribution.dta")
@@ -294,6 +291,11 @@ ggplot(panel.with.beta.distributions, aes(y=point.forecast, x=mean.fitted.distr)
   geom_point(aes(group = variable, color = variable), size = 1) +
   xlim(-5,15) +
   ylim(-5,15)
+
+ggplot(panel.with.beta.distributions, aes(y=avg.fitted.distr.variance, x=avg.empirical.distr.variance)) + 
+  geom_point(aes(group = variable, color = variable), size = 0.5) +
+  xlim(0,2) +
+  ylim(0,2)
 
 
 

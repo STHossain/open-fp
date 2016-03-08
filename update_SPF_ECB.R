@@ -322,7 +322,7 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
     NA,
     ifelse(is.na(panel$quarters.ahead.ECB),
          panel$target.year,
-         paste0(panel$target.year+panel$quarters.ahead.ECB/4,
+         paste0(panel$issued.year+panel$quarters.ahead.ECB/4,
                 "Q",
                 panel$issued.quarter)
          )
