@@ -25,7 +25,7 @@ SPFUSMutateTargetYear <- function(issued.year, issued.quarter, quarters.ahead) {
   }
 }
 
-for (i in c(1:5)) {
+for (i in c(5)) {
   download.file(paste0("https://www.philadelphiafed.org/-/media/research-and-data/real-time-center/survey-of-professional-forecasters/historical-data/micro",i,".xls"),
                 method = "curl",
                 extra = "--insecure",
