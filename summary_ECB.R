@@ -23,6 +23,22 @@ triangular.distribution <- function(l, r, c) {
 
 
 beta.parameters <- function(n) {
+  beta.dist.function <- function(t, l, r, a, b) {
+    
+    if(t <= l) {
+      return(0)
+    } else {
+      if(t >= r) {
+        return(1) 
+      } else {
+        int <- function(x) {
+          (x-l)^(a-1) * (r-x)^(b-1) / (r-l)^(a+b-1)
+        }
+        integrate(int, lower = l, upper = t)$value/beta(a, b)
+      }
+    }
+  }
+  
   distribution.panel <- data_frame(panel.id = rep(NA, times = n),
                                          issued.period = rep(NA, times = n),
                                          target.period = rep(NA, times = n),
@@ -75,7 +91,7 @@ beta.parameters <- function(n) {
       distribution.panel$l[i]         = l
       distribution.panel$r[i]         = r
       distribution.panel$mean.fitted.distr[i] = triangular.distribution(l, r, (l+r)/2)$mean
-      var.fitted.distr[i]                     = triangular.distribution(l, r, (l+r)/2)$var
+      distribution.panel$var.fitted.distr[i]  = triangular.distribution(l, r, (l+r)/2)$var
     }
     
     dist.panel <- panel[i,15:58]
@@ -154,25 +170,10 @@ beta.parameters <- function(n) {
                     by = 0.5)
       
       
-      dist.panel[1,] <- as.numeric(dist.panel[1,], na.rm = TRUE)/sum(dist.panel[1,], na.rm = TRUE)
-      
-      f.t.grid <- cumsum(as.numeric(dist.panel[!is.na(dist.panel)]))
-      
-      beta.dist.function <- function(t, l, r, a, b) {
-        
-        if(t <= l) {
-          return(0)
-        } else {
-          if(t >= r) {
-            return(1) 
-          } else {
-            int <- function(x) {
-              (x-l)^(a-1) * (r-x)^(b-1) / (r-l)^(a+b-1)
-            }
-            integrate(int, lower = l, upper = t)$value/beta(a, b)
-          }
-        }
-      }
+      y <- as.numeric(dist.panel[1,min(which(!is.na(dist.panel[1,]))):max(which(!is.na(dist.panel[1,])))], na.rm = TRUE)/sum(dist.panel[1,], na.rm = TRUE)
+      y[is.na(y) == TRUE] <- 0
+      f.t.grid <- cumsum(y)
+      rm(y)
       
       sum.sq.diff <- function(optim.parameters) {
         a <- optim.parameters[1]
@@ -206,10 +207,10 @@ beta.parameters <- function(n) {
       rm(a,b,l,r,t.grid,f.t.grid)
       
     }
-    if (i %% 100 == 0) {
-      print(i)
-    }
-    
+    #if (i %% 100 == 0) {
+    #  print(i)
+    #}
+    print(i)
   }
   distribution.panel
 }
@@ -218,8 +219,13 @@ x <- beta.parameters(4)
 
 n <- dim(panel)[1]
 
+
+zz <- file("all.Rout.txt")
+sink(zz, append = TRUE)
+sink(zz, append = TRUE, type = "message")
+
 system.time(
-distribution.panel <- beta.parameters(200)
+distribution.panel <- beta.parameters(n)
 )
 
 
@@ -232,12 +238,8 @@ panel.with.beta.distributions <- left_join(panel, distribution.panel) %>%
   mutate(avg.fitted.distr.uncertainty = var(var.fitted.distr, na.rm = TRUE))
   
 
-infl.panel.with.beta.distributions <- panel.with.beta.distributions %>% 
-  filter(issued.year == 2009) %>% 
-  filter(a != 1.001 || is.na(a) == TRUE || b == 1.001) %>%
-  group_by(variable) %>% 
-  filter(variable == "Inflation") %>%
-  select(-l.new, - r.new, -region)
+panel.christian.matthias <- panel.with.beta.distributions %>% 
+  select()
 
   
 write_rds(infl.panel.with.beta.distributions, path = "ecb_infl_panel_with_fitted_distribution.rds")
