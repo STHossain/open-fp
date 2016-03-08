@@ -330,7 +330,7 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
 )
 
 
-forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
+forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
   select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
          issued.year, issued.quarter, target.period, target.period.ECB, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
          FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
@@ -342,4 +342,4 @@ forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
          F14_0T14_4, F14_5T14_9,
          F15_0T15_4)
 
-write_csv(forecast.panel.SPF.ECB2, path = "Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
+write_csv(forecast.panel.SPF.ECB, path = "Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
