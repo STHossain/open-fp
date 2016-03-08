@@ -309,18 +309,30 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
     4,
     ifelse( quarters.ahead <= 8,
            8,
-           ifelse( quarters.ahead == 15,
-                   16,
+           ifelse( quarters.ahead > 16,
+                   20,
                    NA )
            )
   )
   ) 
 
+forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
+  mutate(target.period.ECB = ifelse(
+    is.na(panel$target.year),
+    NA,
+    ifelse(is.na(panel$quarters.ahead.ECB),
+         panel$target.year,
+         paste0(panel$target.year+panel$quarters.ahead.ECB/4,
+                "Q",
+                panel$issued.quarter)
+         )
+    )
+)
 
 
 forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
   select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
-         issued.year, issued.quarter, target.period, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
+         issued.year, issued.quarter, target.period, target.period.ECB, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
          FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
          FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5TN0_1, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
          F2_0T2_4, F2_5T2_9, F3_0T3_4, F3_5T3_9, F4_0T4_4, F4_5T4_9, F5_0T5_4, F5_5T5_9, F6_0T6_4, F6_5T6_9, 
