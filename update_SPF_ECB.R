@@ -58,7 +58,12 @@ SPFECBMutateQuartersAhead <- function(issued.year, issued.quarter, target.year, 
       return(target.quarter - issued.quarter)
     } else {
       if (issued.year < target.year) {
-        return((target.year-issued.year)*4-((issued.quarter-target.quarter)%%4))
+        if(issued.quarter-target.quarter <= 0) {
+          return((target.year-issued.year)*4+((issued.quarter-target.quarter)%%4))
+        } else {
+          return((target.year-issued.year)*4-((issued.quarter-target.quarter)%%4))
+        }
+        
       } else {
         return(NA)
       }
@@ -310,6 +315,8 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
            )
   )
   ) 
+
+
 
 forecast.panel.SPF.ECB2 <- forecast.panel.SPF.ECB %>%
   select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
