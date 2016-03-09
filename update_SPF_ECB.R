@@ -73,90 +73,76 @@ SPFECBMutateQuartersAhead <- function(issued.year, issued.quarter, target.year, 
 
 SPFECBRenameBins <- function(panel) {
   
-  # fix bins strictly positive number to infinity 
-  foreach( i = 1:20, .errorhandling='remove') %do% {
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = F",i,"_0)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  foreach( i = 1:20, .errorhandling='remove') %do% {
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_9 = F",i,"_5)")
-    eval(parse(text = renamed.columns.expression))
-  }
+  panel <- clean.csv
+  panel.names <- names(panel)
   
-  
-  # fix bins negative infinity to strictly positive number
-  foreach( i = 1:20, .errorhandling='remove') %do% {
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i-1,"_5T", i-1, "_9 = T",i,"_0)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  foreach( i = 1:20, .errorhandling='remove') %do% {
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = T",i,"_5)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  
-  # foreach loop just for error handling
-  foreach( i = 1, .errorhandling='remove') %do% {
+  # renome bins around zero
+  if (sum(paste0("T0_0") == panel.names) == 1) {
     # fix negative infinity to 0 
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = T0_0)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = T0_0)")))
   }
-  
-  foreach( i = 1, .errorhandling = 'remove') %do% {
+  if (sum(paste0("F0_0") == panel.names) == 1) {
     # fix 0 to positive infinity
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_0T0_5 = F0_0)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, F0_0T0_4 = F0_0)")))
   }
-  
-  foreach( i = 1, .errorhandling = 'remove') %do% {
+  if (sum(paste0("F0_5") == panel.names) == 1) {
     # fix 0.5 to positive infinity
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_5T0_9 = F0_5)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, F0_5T0_9 = F0_5)")))
   }
-  
-  foreach( i = 1, .errorhandling = 'remove') %do% {
+  if (sum(paste0("T0_5") == panel.names) == 1) {
     # fix negative infinity to 0.5
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F0_0T0_4 = T0_5)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, F0_0T0_4 = T0_5)")))
   }
-  
-  foreach( i = 1, .errorhandling = 'remove') %do% {
+  if (sum(paste0("FN0_5") == panel.names) == 1) {
     # fix -0.5 to positive infinity
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = FN0_5)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, FN0_5TN0_1 = FN0_5)")))
   }
-  
-  foreach( i = 1, .errorhandling = 'remove') %do% {
+  if (sum(paste0("TN0_5") == panel.names) == 1) {
     # fix negative infinity to -0.5
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN1_0TN0_6 = TN0_5)")
-    eval(parse(text = renamed.columns.expression))
+    eval(parse(text = paste0("panel <- dplyr::rename(panel, FN1_0TN0_6 = TN0_5)")))
   }
   
-  
-  
-  # fix bins negative infinity to strictly negative number
-  foreach( i = 1:20, .errorhandling='remove') %do% {
+  for (i in 1:20) {
+    # rename bins from positive number to infitnity
+    if(sum(paste0("F",i,"_0") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = F",i,"_0)")))
+    }
+    if(sum(paste0("F",i,"_5") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_9 = F",i,"_5)")))
+    }
+    
+    # rename bins from negative infinity to positive number
+    if(sum(paste0("T",i,"_0") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, F", i-1,"_5T", i-1, "_9 = T",i,"_0)")))
+    }
+    
+    if(sum(paste0("T",i,"_5") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, F", i,"_0T", i, "_4 = T",i,"_5)")))
+    }
+    
+    # fix bins negative infinity to strictly negative number
+    
     # (-inf,-4) -> (-4.5 , -4.1)
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i,"_5TN", i, "_1 = TN",i,"_0)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  
-  foreach( i = 1:20, .errorhandling='remove') %do% {
+    if (sum(paste0("TN",i,"_0") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, FN", i,"_5TN", i, "_1 = TN",i,"_0)")))
+    }
+    
     # (-inf,-4.5) -> (-5.0 , -4.6)
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i+1,"_0TN", i, "_6 = TN",i,"_5)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  
-  # fix bins strictly negative number to infinity 
-  foreach( i = 1:20, .errorhandling='remove') %do% {
+    if (sum(paste0("TN",i,"_5") == panel.names) == 1) {
+      eval(parse(text = paste0("panel <- dplyr::rename(panel, FN", i+1,"_0TN", i, "_6 = TN",i,"_5)")))
+    }
+    
+    # fix bins strictly negative number to infinity 
+    
     # (-4,inf) -> (-4,-3.6)
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, FN", i,"_0Tn", i-1, "_4 = FN",i,"_0)")
-    eval(parse(text = renamed.columns.expression))
-  }
-  
-  foreach( i = 1:20, .errorhandling='remove') %do% {
+    if (sum(paste0("FN",i,"_0") == panel.names) == 1) {
+      eval(parse(text =  paste0("panel <- dplyr::rename(panel, FN", i,"_0TN", i-1, "_6 = FN",i,"_0)")))
+    }
+    
     # (-4.5,inf) -> (-4.5,-4.1)
-    renamed.columns.expression <- paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_1 = FN",i,"_5)")
-    eval(parse(text = renamed.columns.expression))
+    if (sum(paste0("FN",i,"_5") == panel.names) == 1) {
+      eval(parse(text =  paste0("panel <- dplyr::rename(panel, F", i,"_5T", i, "_1 = FN",i,"_5)")))
+    }
   }
   
   return(panel)
@@ -319,28 +305,46 @@ forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
 
 forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
   mutate(target.period.ECB = ifelse(
-    is.na(panel$target.year),
+    is.na(forecast.panel.SPF.ECB$target.year),
     NA,
-    ifelse(is.na(panel$quarters.ahead.ECB),
-         panel$target.year,
-         paste0(panel$issued.year+panel$quarters.ahead.ECB/4,
+    ifelse(is.na(forecast.panel.SPF.ECB$quarters.ahead.ECB),
+           forecast.panel.SPF.ECB$target.year,
+         paste0(forecast.panel.SPF.ECB$issued.year+forecast.panel.SPF.ECB$quarters.ahead.ECB/4,
                 "Q",
-                panel$issued.quarter)
+                forecast.panel.SPF.ECB$issued.quarter)
          )
     )
 )
 
+generate.intervals.out.of.strings <- function(interval.string) {
+  sub.strings <- unlist(strsplit(toString(interval.string), "_", fixed = TRUE))
+  
+  if (substr(sub.strings[1], start = 2, stop = 2) == "N") {
+    interval.left <- -as.numeric(paste0(substr(sub.strings[1], start = 3, stop = 1000), ".", substr(sub.strings[2], start = 1, stop = 1)))
+  } else {
+    interval.left <- as.numeric(paste0(substr(sub.strings[1], start = 2, stop = 1000), ".", substr(sub.strings[2], start = 1, stop = 1)))
+  }
+  interval.left
+}
 
 forecast.panel.SPF.ECB <- forecast.panel.SPF.ECB %>%
   select(panel, panel.id, variable, region, point.forecast, fixed.event.or.horizon,issued.period,
-         issued.year, issued.quarter, target.period, target.period.ECB, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
-         FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
-         FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5TN0_1, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
-         F2_0T2_4, F2_5T2_9, F3_0T3_4, F3_5T3_9, F4_0T4_4, F4_5T4_9, F5_0T5_4, F5_5T5_9, F6_0T6_4, F6_5T6_9, 
-         F7_0T7_4, F7_5T7_9, F8_0T8_4, F8_5T8_9, F9_0T9_4, F9_5T9_9, F10_0T10_4, F10_5T10_9, F11_0T11_4, F11_5T11_9,
-         F12_0T12_4, F12_5T12_9, 
-         F13_0T13_4, F13_5T13_9, 
-         F14_0T14_4, F14_5T14_9,
-         F15_0T15_4)
+       issued.year, issued.quarter, target.period, target.period.ECB, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter,
+       FN6_5TN6_1, FN6_0TN5_6, FN5_5TN5_1, FN5_0TN4_6, FN4_5TN4_1, FN4_0TN3_6, FN3_5TN3_1, FN3_0TN2_6, 
+       FN2_5TN2_1, FN2_0TN1_6, FN1_5TN1_1, FN1_0TN0_6, FN0_5TN0_1, F0_0T0_4, F0_5T0_9, F1_0T1_4, F1_5T1_9, 
+       F2_0T2_4, F2_5T2_9, F3_0T3_4, F3_5T3_9, F4_0T4_4, F4_5T4_9, F5_0T5_4, F5_5T5_9, F6_0T6_4, F6_5T6_9, 
+       F7_0T7_4, F7_5T7_9, F8_0T8_4, F8_5T8_9, F9_0T9_4, F9_5T9_9, F10_0T10_4, F10_5T10_9, F11_0T11_4, F11_5T11_9,
+       F12_0T12_4, F12_5T12_9, 
+       F13_0T13_4, F13_5T13_9, 
+       F14_0T14_4, F14_5T14_9,
+       F15_0T15_4)
+
+playground <- forecast.panel.SPF.ECB %>%
+  gather(interval, prob.mass, -c(panel,panel.id, variable, region, point.forecast, fixed.event.or.horizon, issued.period,
+                                 issued.year, issued.quarter, target.period, target.period.ECB, quarters.ahead, quarters.ahead.ECB, target.year, target.quarter))
+
+playground <- playground %>% mutate(l = sapply(playground$interval, generate.intervals.out.of.strings))
+
+playground2 <- playground %>% mutate(l = l-0.05) %>% mutate(r = l+0.5, c = l + 0.25)
 
 write_csv(forecast.panel.SPF.ECB, path = "Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
