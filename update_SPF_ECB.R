@@ -345,6 +345,17 @@ playground <- forecast.panel.SPF.ECB %>%
 
 playground <- playground %>% mutate(l = sapply(playground$interval, generate.intervals.out.of.strings))
 
+playground3$interval <- toString(playground$interval)
+
+playground3 <- playground3 %>% 
+  mutate(l = ifelse(
+    substr(unlist(strsplit(interval, "_", fixed = TRUE))[1], start = 2, stop = 2) == "N",
+    - as.numeric(paste0(substr(unlist(strsplit(interval, "_", fixed = TRUE))[1], start = 3, stop = 1000), ".", substr(unlist(strsplit(interval, "_", fixed = TRUE))[2], start = 1, stop = 1))),
+    as.numeric(paste0(substr(unlist(strsplit(interval, "_", fixed = TRUE))[1], start = 2, stop = 1000), ".", substr(unlist(strsplit(interval, "_", fixed = TRUE))[2], start = 1, stop = 1)))
+  )
+  )
+
+
 playground2 <- playground %>% mutate(l = l-0.05) %>% mutate(r = l+0.5, c = l + 0.25)
 
 write_csv(forecast.panel.SPF.ECB, path = "Submissions/SPF-ECB.csv", col_names = TRUE, append = FALSE)
