@@ -260,6 +260,7 @@ panel.christian.matthias <- panel.with.beta.distributions %>%
          avg.empirical.distr.variance
          )
 
+
 panel.christian.matthias$variable[panel.christian.matthias$variable == "GDP growth"] <- "gdpgrowth"
 panel.christian.matthias$variable[panel.christian.matthias$variable == "Inflation"] <- "infl"
 panel.christian.matthias$variable[panel.christian.matthias$variable == "Unemployment"] <- "unempl"
