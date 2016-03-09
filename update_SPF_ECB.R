@@ -173,8 +173,9 @@ unzip(zipfile = "Submissions/SPF.zip",
 do.call(file.remove, list(list.files("temp/", full.names = TRUE)))
 
 # random comment here
+current.year <- as.integer(format(Sys.Date(), "%Y"))
 
-for(year in c(1999:2018)) {
+for(year in c(1999:current.year)) {
   for (quarter in c(1:4)) {
     if (file.exists(paste0("Submissions/SPF-ECB/",year,"Q", quarter,".csv")) == FALSE) {
       
@@ -265,7 +266,7 @@ for(year in c(1999:2018)) {
   }
 }
 
-rm(data.variable, dataSPF, clean.csv, quarter, year, temp.path,i, empty.rows)
+rm(data.variable, dataSPF, clean.csv, quarter, year, temp.path,i, empty.rows, current.year)
 
 files <- list.files(file.path("temp/"), full.names = TRUE)
 forecast.panel.SPF.ECB <- lapply(files, read_csv, col_names = TRUE)

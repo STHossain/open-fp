@@ -244,8 +244,10 @@ panel.with.beta.distributions <- full_join(panel, distribution.panel) %>%
   ungroup()
 
 panel.christian.matthias <- panel.with.beta.distributions %>% 
-  select(panel.id, variable, issued.period, target.period.ECB,
+  select(panel.id, variable, issued.period, target.period, 
+         target.period.ECB,
          fixed.event.or.horizon,
+         quarters.ahead,
          quarters.ahead.ECB, point.forecast,
          mean.fitted.distr,
          var.fitted.distr,
