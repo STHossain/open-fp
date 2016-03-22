@@ -167,7 +167,7 @@ write_rds(all.joined, path = "forecast.panel.rds")
 library(readr)
 library(foreign)
 
-forecast.panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds")
+forecast.panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-US")
 
 # Create various data formats
 write_csv(forecast.panel, path = "/var/www/open-fp/data/forecast.panel.csv")
@@ -176,4 +176,4 @@ write.dta(forecast.panel, file = "/var/www/open-fp/data/forecast.panel.dta")
 
 write_csv(forecast.panel, path = "/home/onno/open-fp/open-fp/data/forecast.panel.csv")
 write_rds(forecast.panel, path = "/home/onno/open-fp/open-fp/data/forecast.panel.rds")
-write.dta(forecast.panel, file = "/home/onno/open-fp/open-fp/data/forecast.panel.dta")
+write.dta(forecast.panel, file = "open-fp/data/forecast.panel.dta")
