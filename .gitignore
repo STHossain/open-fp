@@ -20,3 +20,5 @@ ecb_spf_summaries.dta
 ecb_spf.dta
 ecb_spf.csv
 all.Rout.txt
+
+shiny-gadgets-playground.R
