@@ -159,7 +159,7 @@ forecast.panel.frontpage <- all.joined.reduced %>%
   filter(is.na(point.forecast) == FALSE)
 
 rm(all.joined.reduced)
-write_rds(forecast.panel.frontpage, path = "forecast_panel_frontpage.rds")
+write_rds(forecast.panel.frontpage, path = "ShinyApps/frontpage/data/forecast_panel_frontpage.rds")
 rm(forecast.panel.frontpage, forecast.panel.SPF.US, forecast.panel.SPF.ECB)
 
 write_rds(all.joined, path = "forecast.panel.rds")
