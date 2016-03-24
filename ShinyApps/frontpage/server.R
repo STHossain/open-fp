@@ -7,7 +7,7 @@
 current.year <- Sys.Date() %>% format("%Y") %>% as.numeric() 
 
 #load(forecast.panel.rds)
-forecast.panel <- readRDS("/home/onno/open-fp/forecast_panel_frontpage.rds")
+forecast.panel <- readRDS("data/forecast_panel_frontpage.rds")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
