@@ -243,22 +243,47 @@ panel.with.beta.distributions <- full_join(panel, distribution.panel) %>%
   mutate(avg.empirical.distr.variance = var(var.empirical.distr, na.rm = TRUE)) %>%
   ungroup()
 
-panel.christian.matthias <- panel.with.beta.distributions %>% 
+# introduce forecast codings
+# fixed event forecasts:
+# 1 - current year
+# 2 - next year
+# 3 - two years
+# 4 - five years
+# fixed horizon forecasts:
+# 5 - 4 quarters
+# 6 - 8 quarters
+# 7 - 20 quarters
+
+x <- panel.with.beta.distributions %>% 
+  mutate(horizon.id = ifelse(fixed.event.or.horizon == "event" & (target.year - issued.year) == 0, 1,
+                             ifelse(fixed.event.or.horizon == "event" & (target.year - issued.year) == 1, 2, 
+                                    ifelse(fixed.event.or.horizon == "event" & (target.year - issued.year) == 2, 3,
+                                           ifelse(fixed.event.or.horizon == "event" & (target.year - issued.year) >3, 4,
+                                                  ifelse(fixed.event.or.horizon == "horizon" & quarters.ahead.ECB == 4, 5,
+                                                         ifelse(fixed.event.or.horizon == "horizon" & quarters.ahead.ECB == 8, 6,
+                                                                ifelse(fixed.event.or.horizon == "horizon" & quarters.ahead.ECB == 20, 7, NA))))))))
+
+panel.christian.matthias <- x %>% 
   select(panel.id, variable, issued.period, target.period, 
          target.period.ECB,
          fixed.event.or.horizon,
+         horizon.id,
+         issued.year,
+         target.year,
          quarters.ahead,
          quarters.ahead.ECB, point.forecast,
          mean.fitted.distr,
          var.fitted.distr,
          mean.empirical.distr,
          var.empirical.distr,
-         avg.point.forecast, var.point.forecast,
+         avg.point.forecast, 
+         var.point.forecast,
          avg.fitted.distr.mean,
          avg.fitted.distr.variance,
          avg.empirical.distr.mean,
          avg.empirical.distr.variance
          )
+
 
 
 panel.christian.matthias$variable[panel.christian.matthias$variable == "GDP growth"] <- "gdpgrowth"
@@ -267,6 +292,10 @@ panel.christian.matthias$variable[panel.christian.matthias$variable == "Unemploy
 
 write.dta(panel.christian.matthias, file = "ecb_spf.dta")
 write_csv(panel.christian.matthias, path = "ecb_spf.csv")
+
+panel.christian.matthias <- read_csv(file = "ecb_spf.csv") %>% 
+  filter(fixed.event.or.horizon == "event") %>%
+  filter(target.period - issued.period > 2)
 
 plot.data <- panel.with.beta.distributions %>% 
   #filter(issued.year == 2009) %>% 
