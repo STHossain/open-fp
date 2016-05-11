@@ -21,9 +21,10 @@ shinyServer(function(input, output) {
       filter(target.year == current.year | target.year == (current.year+1))
     
     gg <- ggplot(gg.data) + 
-      geom_boxplot(aes(x = target.year, y = point.forecast, group = target.year)) +
+      geom_boxplot(aes(x = as.factor(target.year), y = point.forecast, group = target.year)) +
       xlab('target period') +
-      scale_y_continuous("point forecasts")
+      ylab('point forecasts')
+      #scale_y_continuous("point forecasts")
     
     plotly::config(ggplotly(gg), staticPlot = F, showLink=F, sendData=F, displaylogo=F, displayModeBar = F)
     
