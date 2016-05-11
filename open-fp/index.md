@@ -13,7 +13,7 @@ As the project goes on, we will visualize our panel data through interactive gra
 Happy forecasting!
 
 <div class="embed-container">
-<iframe id="example1" src="http://open-fp.onnokleen.de:3838/onno/frontpage/" style="border: none; width: 100%; height: 400px" frameborder="0"></iframe>
+<iframe id="example1" src="http://open-fp.org:3838/onno/frontpage/" style="border: none; width: 100%; height: 400px" frameborder="0"></iframe>
 </div>
 
 ## What do we want to achieve? 
