@@ -1,4 +1,5 @@
 setwd("~/ShinyApps/submit/")
+#setwd("~/Git/open-fp/ShinyApps/submit/")
 fieldsMandatory <- c("forecaster.id")
 
 labelMandatory <- function(label) {
@@ -12,6 +13,7 @@ appCSS <- ".mandatory_star { color: red; }"
 
 shinyApp(
   ui = fluidPage(
+    responsive = FALSE,
     shinyjs::useShinyjs(),
     shinyjs::inlineCSS(appCSS),
     #titlePanel("Submit forecasts"),
@@ -43,7 +45,11 @@ shinyApp(
       #sliderInput("r_num_years", "Number of years using R", 0, 25, 2, ticks = FALSE),
       #selectInput("os_type", "Operating system used most frequently",
       #            c("",  "Windows", "Mac", "Linux")),
-      actionButton("submit", "Submit", class = "btn-primary")
+      actionButton("submit", "Submit", class = "btn-primary"),
+      
+      mainPanel(
+        #plotOutput$plot
+      )
     )
   ),
   
@@ -61,5 +67,8 @@ shinyApp(
     output$choose_dataset <- renderUI({
       selectInput("dataset", "Data set", as.list(data_sets))
     })
+    #output$plot <- renderPlot({
+    #  hist(rnorm(5))
+    #})
   }
 )

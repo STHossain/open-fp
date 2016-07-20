@@ -1,14 +1,9 @@
-#panel <- read_rds(path = "/home/onno/open-fp/forecast.panel.rds") %>% filter(panel == "SPF-ECB")
-
 library(readr)
 library(optimx)
 library(dplyr)
 library(ggplot2)
 
 panel <- read_rds(path = "forecast.panel.rds") %>% filter(panel == "SPF-ECB")
-
-
-n <- dim(panel)[1]
 
 panel %>% 
   filter(!is.na(panel.id)) %>%
@@ -23,7 +18,13 @@ triangular.distribution <- function(l, r, c) {
 }
 
 
-beta.parameters <- function(n) {
+beta.parameters <- function(df) {
+  
+  # panel needs to have variables panel.id, issued.period, target.period and variable
+  panel <- df
+  
+  n <- dim(df)[1]
+  
   beta.dist.function <- function(t, l, r, a, b) {
     
     if(t <= l) {
@@ -53,8 +54,8 @@ beta.parameters <- function(n) {
                                          var.fitted.distr = rep(NA, times = n),
                                          mean.empirical.distr = rep(NA, times = n),
                                          var.empirical.distr = rep(NA, times = n),  
-                                         l.new = rep(NA, times = n),
-                                         r.new = rep(NA, times = n))
+                                         l.distr = rep(NA, times = n),
+                                         r.distr = rep(NA, times = n))
   for(i in 1:n) {
     dist.panel <- panel[i,15:58]
     dist.panel[dist.panel == 0] <- NA
@@ -113,8 +114,8 @@ beta.parameters <- function(n) {
       
       # equally weighted bins
       if(prob.left.bin == prob.right.bin) {
-        l.new <- l
-        r.new <- r
+        l.distr <- l
+        r.distr <- r
         mean.triangle <- triangular.distribution(l, r, (l+r)/2)$mean
         var.triangle  <- triangular.distribution(l, r, (l+r)/2)$var
       }
@@ -122,31 +123,31 @@ beta.parameters <- function(n) {
       # left bin has less probability mass than right bin
       if(prob.left.bin < prob.right.bin) {
         
-        l.new <- as.numeric(r - 0.5 - 0.5*sqrt(prob.left.bin/2)/(1-sqrt(prob.left.bin/2)) )
-        r.new <- as.numeric(r)
-        c.new <- (r.new + l.new)/2
+        l.distr <- as.numeric(r - 0.5 - 0.5*sqrt(prob.left.bin/2)/(1-sqrt(prob.left.bin/2)) )
+        r.distr <- as.numeric(r)
+        c.distr <- (r.distr + l.distr)/2
         
-        mean.triangle <- triangular.distribution(l.new, r.new, c.new)$mean
-        var.triangle  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.triangle <- triangular.distribution(l.distr, r.distr, c.distr)$mean
+        var.triangle  <- triangular.distribution(l.distr, r.distr, c.distr)$var
       }
       
       # left bin has more probability mass than right bin
       if(prob.left.bin > prob.right.bin) {
         
-        l.new <- as.numeric(l)
-        r.new <- as.numeric(l + 0.5 + 0.5 * sqrt(prob.right.bin/2)/(1-sqrt(prob.right.bin/2)))
-        c.new <- (r.new + l.new)/2
+        l.distr <- as.numeric(l)
+        r.distr <- as.numeric(l + 0.5 + 0.5 * sqrt(prob.right.bin/2)/(1-sqrt(prob.right.bin/2)))
+        c.distr <- (r.distr + l.distr)/2
         
-        mean.triangle <- triangular.distribution(l.new, r.new, c.new)$mean 
-        var.triangle  <- triangular.distribution(l.new, r.new, c.new)$var
+        mean.triangle <- triangular.distribution(l.distr, r.distr, c.distr)$mean 
+        var.triangle  <- triangular.distribution(l.distr, r.distr, c.distr)$var
       }
       
       
       distribution.panel$fit.distr[i]  = "triangle"
       distribution.panel$l[i]          = l
       distribution.panel$r[i]          = r
-      distribution.panel$l.new[i]      = l.new
-      distribution.panel$r.new[i]      = r.new
+      distribution.panel$l.distr[i]      = l.distr
+      distribution.panel$r.distr[i]      = r.distr
       distribution.panel$mean.fitted.distr[i] = mean.triangle
       distribution.panel$var.fitted.distr[i]  = var.triangle
       
@@ -208,26 +209,22 @@ beta.parameters <- function(n) {
       rm(a,b,l,r,t.grid,f.t.grid)
       
     }
-    #if (i %% 100 == 0) {
-    #  print(i)
-    #}
+    
     print(i)
   }
   distribution.panel
 }
 
-x <- beta.parameters(4)
+distribution.panel <- beta.parameters(df = panel)
 
-n <- dim(panel)[1]
-
-
-zz <- file("all.Rout.txt")
-sink(zz, append = TRUE)
-sink(zz, append = TRUE, type = "message")
-
-system.time(
-distribution.panel <- beta.parameters(n)
-)
+# 
+# zz <- file("all.Rout.txt")
+# sink(zz, append = TRUE)
+# sink(zz, append = TRUE, type = "message")
+# 
+# system.time(
+# distribution.panel <- beta.parameters(n)
+# )
 
 
 write_rds(distribution.panel, path = "distribution_panel.rds")
@@ -297,12 +294,17 @@ panel.christian.matthias <- read_csv(file = "ecb_spf.csv") %>%
   filter(fixed.event.or.horizon == "event") %>%
   filter(target.period - issued.period > 2)
 
+#
+# random code for testing
+#
+
+
 plot.data <- panel.with.beta.distributions %>% 
   #filter(issued.year == 2009) %>% 
   #filter(a != 1.001 || is.na(a) == TRUE || b == 1.001) %>%
   group_by(variable) %>% 
   filter(variable == "Inflation") %>%
-  select(-l.new, - r.new)
+  select(-l.distr, - r.distr)
 
 qplot(mean.fitted.distr, point.forecast, data = panel.with.beta.distributions, color = "variable")
 
