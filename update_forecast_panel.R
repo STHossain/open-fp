@@ -1,5 +1,6 @@
 setwd("/home/onno/open-fp/")
 setwd("~/Git/open-fp/")
+setwd("E:/Git/open-fp/")
 library("readr")
 library("haven")
 library("dplyr")
@@ -10,9 +11,13 @@ library("tidyr")
 library("foreign")
 #library("doParallel")
 
+dir.create("Submissions")
+dir.create("temp")
+dir.create("Submissions/SPF-ECB/")
+dir.create("Submissions/SPF-US/")
+
 source("update_SPF_ECB.R")
 source("update_SPF_US.R")
-
 
 all.joined <- full_join( forecast.panel.SPF.ECB, forecast.panel.SPF.US)
 
