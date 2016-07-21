@@ -15,6 +15,7 @@ SPFUSMutateTargetYear <- function(issued.year, issued.quarter, quarters.ahead) {
 for (i in c(5)) {
   download.file(paste0("https://www.philadelphiafed.org/-/media/research-and-data/real-time-center/survey-of-professional-forecasters/historical-data/micro",i,".xls"),
                 method = "curl",
+                #method = "curl",
                 extra = "--insecure",
                 destfile = paste0("Submissions/SPF-US/micro",i,".xls"))
 }

@@ -152,7 +152,7 @@ download.file("http://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files
               destfile = "Submissions/SPF.zip")
 
 unzip(zipfile = "Submissions/SPF.zip",
-      exdir = "Submissions/SPF-ECB/")
+      exdir = "Submissions/SPF-ECB")
 
 do.call(file.remove, list(list.files("temp/", full.names = TRUE)))
 
